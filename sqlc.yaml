@@ -1,0 +1,15 @@
+version: "2"
+sql:
+  - engine: "sqlite"
+    schema: ["internal/repository/queries/initial_schema.sql"]
+    queries: "internal/repository/queries/*"
+    gen:
+      go:
+        package: "cardsQuery"
+        out: "internal/repository/queries/cardsQuery"
+        overrides:
+          - db_type: "boolean"
+            go_type: "bool"
+        sql_package: "database/sql"
+        emit_json_tags: true
+        emit_prepared_queries: true

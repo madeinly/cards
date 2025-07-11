@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"githube.com/madeinly/cards/internal/service"
 )
 
 func init() {
@@ -13,8 +14,12 @@ func init() {
 var testingCmd = &cobra.Command{
 	Use: "testing",
 	Run: func(cmd *cobra.Command, args []string) {
+		err := service.SetPricesDB()
 
-		fmt.Println("yo aqui aprendi")
+		if err != nil {
+			println(err.Error())
+		}
 
+		fmt.Println("mtg database set up")
 	},
 }

@@ -11,7 +11,7 @@ import (
 )
 
 // returns the folder path of the bin (probably should be in core)
-func madeinlyPath() (string, error) {
+func MadeinlyPath() (string, error) {
 
 	binPath, err := os.Executable()
 
@@ -24,12 +24,12 @@ func madeinlyPath() (string, error) {
 }
 
 // makes sure that the cards folder exist and if not created or return error
-func CardFolderStructure() error {
+func CardsPath() (string, error) {
 
-	madeinlyPath, err := madeinlyPath()
+	madeinlyPath, err := MadeinlyPath()
 
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	cardsFolderPath := path.Join(madeinlyPath, "cards")
@@ -40,14 +40,14 @@ func CardFolderStructure() error {
 		if os.IsNotExist(err) {
 			err = os.MkdirAll(cardsFolderPath, 0755)
 			if err != nil {
-				return fmt.Errorf("failed to create directory: %w", err)
+				return "", fmt.Errorf("failed to create directory: %w", err)
 			}
 		} else {
-			return fmt.Errorf("failed to check directory: %w", err)
+			return "", fmt.Errorf("failed to check directory: %w", err)
 		}
 	}
 
-	return nil
+	return cardsFolderPath, nil
 }
 
 func DownLoadFile(url string, path string) error {
@@ -111,68 +111,17 @@ func Ungz(gzPath string, filePath string) error {
 
 }
 
-func SetCardsDB() error {
-
-	mtgjsonURL := "https://mtgjson.com/api/v5/AllPrintings.sqlite.gz"
-
-	madeinlyPath, err := madeinlyPath()
-
-	if err != nil {
-		return err
-	}
-
-	err = CardFolderStructure()
-
-	if err != nil {
-		return err
-	}
-
-	dlPath := path.Join(madeinlyPath, "cards", "AllPrintings.sqlite.gz")
-	err = DownLoadFile(mtgjsonURL, dlPath)
-
-	defer os.Remove(dlPath)
-
-	if err != nil {
-		return err
-	}
-
-	pathMtgDB := path.Join(madeinlyPath, "cards", "mtgDB.sqlite")
-
-	err = Ungz(dlPath, pathMtgDB)
-
-	if err != nil {
-		return err
-	}
-
-	defer os.Remove(dlPath)
-
-	err = os.Chmod(pathMtgDB, 0600)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-
-}
-
 func SetPricesDB() error {
 
 	url := "https://mtgjson.com/api/v5/AllPrices.json.gz"
 
-	madeinlyPath, err := madeinlyPath()
+	cardsPath, err := CardsPath()
 
 	if err != nil {
 		return err
 	}
 
-	err = CardFolderStructure()
-
-	if err != nil {
-		return err
-	}
-
-	gzFile := path.Join(madeinlyPath, "cards", "AllPrices.json.gz")
+	gzFile := path.Join(cardsPath, "AllPrices.json.gz")
 
 	err = DownLoadFile(url, gzFile)
 
@@ -180,7 +129,7 @@ func SetPricesDB() error {
 		return err
 	}
 
-	pricesPath := path.Join(madeinlyPath, "cards", "mtgPrices.json")
+	pricesPath := path.Join(cardsPath, "mtgPrices.json")
 
 	err = Ungz(gzFile, pricesPath)
 

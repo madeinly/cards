@@ -5,6 +5,7 @@ import (
 
 	coreModels "github.com/madeinly/core/models"
 	"githube.com/madeinly/cards/internal/cmd"
+	"githube.com/madeinly/cards/internal/service"
 )
 
 //go:embed internal/repository/queries/initial_schema.sql
@@ -19,5 +20,11 @@ var Feature = coreModels.FeaturePackage{
 }
 
 func setupCards() error {
+
+	err := service.FetchCardsDB()
+
+	if err != nil {
+		return err
+	}
 	return nil
 }

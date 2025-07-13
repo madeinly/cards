@@ -43,7 +43,6 @@ type finish struct {
 
 type price map[string]float64
 
-// PriceRecord represents a single price entry
 type PriceRecord struct {
 	CardID string
 	Finish string // 'normal', 'foil', or 'etched'
@@ -61,12 +60,12 @@ func SetupPriceTable() error {
 	var mBefore, mAfter runtime.MemStats
 	runtime.ReadMemStats(&mBefore)
 
-	madeinlyPath, err := madeinlyPath()
+	cardsPath, err := CardsPath()
 	if err != nil {
 		return err
 	}
 
-	pricesPath := path.Join(madeinlyPath, "cards", "mtgPrices.json")
+	pricesPath := path.Join(cardsPath, "mtgPrices.json")
 	pricesFile, err := os.Open(pricesPath)
 	if err != nil {
 		return err

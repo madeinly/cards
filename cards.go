@@ -21,7 +21,7 @@ var Feature = coreModels.FeaturePackage{
 
 func setupCards() error {
 
-	err := service.FetchCardsDB()
+	err := service.UpdateCardsDB()
 
 	if err != nil {
 		return err

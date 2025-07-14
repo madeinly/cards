@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"githube.com/madeinly/cards/internal/card"
+	"githube.com/madeinly/cards/internal/repository"
 )
 
 func init() {
@@ -14,12 +14,26 @@ func init() {
 var testingCmd = &cobra.Command{
 	Use: "testing",
 	Run: func(cmd *cobra.Command, args []string) {
-		err := card.SetupPriceTable()
+		_, err := repository.InitCardsDB()
 
 		if err != nil {
-			println(err.Error())
+			fmt.Println(err.Error())
 		}
 
-		fmt.Println("finish parsing")
+		db, err := repository.GetCardsDB()
+
+		if _, err := db.Exec("PRAGMA quick_check"); err != nil {
+			fmt.Println(err.Error())
+		}
+
+		fmt.Println("database looks fine")
+
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+
+		db.Close()
+
+		fmt.Println("finish testing")
 	},
 }

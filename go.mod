@@ -5,6 +5,7 @@ go 1.24.3
 require (
 	github.com/madeinly/core v0.0.0-20250625141359-99340a066fdc
 	github.com/spf13/cobra v1.9.1
+	modernc.org/sqlite v1.37.1
 )
 
 require (
@@ -24,5 +25,4 @@ require (
 	modernc.org/libc v1.65.8 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.11.0 // indirect
-	modernc.org/sqlite v1.37.1 // indirect
 )

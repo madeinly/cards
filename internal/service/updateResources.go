@@ -1,45 +1,87 @@
 package service
 
 import (
+	"database/sql"
+	"time"
+
+	"fmt"
 	"os"
 	"path"
 
+	_ "modernc.org/sqlite"
+
 	"githube.com/madeinly/cards/internal/card"
+	"githube.com/madeinly/cards/internal/repository"
 )
 
-func FetchCardsDB() error {
+func UpdateCardsDB() error {
+	// 1. Get paths
+	cardsPath, err := card.CardsPath()
+	if err != nil {
+		return fmt.Errorf("failed to get cards path: %w", err)
+	}
 
 	mtgjsonURL := "https://mtgjson.com/api/v5/AllPrintings.sqlite.gz"
-
-	cardsPath, err := card.CardsPath()
-
-	if err != nil {
-		return err
-	}
-
-	gzPath := path.Join(cardsPath, "AllPrintings.sqlite.gz")
-	err = card.DownLoadFile(mtgjsonURL, gzPath)
-
+	gzPath := path.Join(cardsPath, "AllPrintings.sqlite.gz.tmp")
 	defer os.Remove(gzPath)
 
+	if err := card.DownLoadFile(mtgjsonURL, gzPath); err != nil {
+		return fmt.Errorf("download failed: %w", err)
+	}
+
+	tempDBPath := path.Join(cardsPath, "mtgDB.sqlite.tmp")
+	if err := card.Ungz(gzPath, tempDBPath); err != nil {
+		return fmt.Errorf("extraction failed: %w", err)
+	}
+
+	if err := verifySQLiteDB(tempDBPath); err != nil {
+		os.Remove(tempDBPath)
+		return fmt.Errorf("database verification failed: %w", err)
+	}
+
+	if err := os.Chmod(tempDBPath, 0444); err != nil {
+		os.Remove(tempDBPath)
+		return fmt.Errorf("failed to set permissions: %w", err)
+	}
+
+	db, _ := repository.GetCardsDB()
+
+	var dbWasInUse bool
+
+	if db != nil {
+		dbWasInUse = true
+	}
+
+	if dbWasInUse {
+		db.Close()
+		time.Sleep(time.Millisecond * 100)
+	}
+
+	finalPath := path.Join(cardsPath, "mtgDB.sqlite")
+	if err := os.Rename(tempDBPath, finalPath); err != nil {
+		return fmt.Errorf("failed to replace database: %w", err)
+	}
+
+	if dbWasInUse {
+		repository.InitCardsDB()
+	}
+
+	return nil
+}
+
+func verifySQLiteDB(path string) error {
+	db, err := sql.Open("sqlite", fmt.Sprintf(
+		"file:%s?mode=ro&immutable=1",
+		path,
+	))
 	if err != nil {
 		return err
 	}
+	defer db.Close()
 
-	pathMtgDB := path.Join(cardsPath, "mtgDB.sqlite")
-
-	err = card.Ungz(gzPath, pathMtgDB)
-
-	if err != nil {
-		return err
-	}
-
-	err = os.Chmod(pathMtgDB, 0600)
-
-	if err != nil {
+	if _, err := db.Exec("PRAGMA quick_check"); err != nil {
 		return err
 	}
 
 	return nil
-
 }

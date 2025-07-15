@@ -51,8 +51,6 @@ type PriceRecord struct {
 	Date   string
 }
 
-const OptimalBatchSize = 500 // Good balance between speed and memory
-
 func SetupPriceTable() error {
 	start := time.Now()
 

@@ -8,7 +8,7 @@ import (
 	"githube.com/madeinly/cards/internal/service"
 )
 
-//go:embed internal/repository/queries/initial_schema.sql
+//go:embed internal/repository/queries/schemas/initial_schema.sql
 var initialSchema string
 
 var Feature = coreModels.FeaturePackage{
@@ -21,10 +21,19 @@ var Feature = coreModels.FeaturePackage{
 
 func setupCards() error {
 
-	err := service.UpdateCardsDB()
+	var err error
+
+	err = service.UpdateCardsDB()
 
 	if err != nil {
 		return err
 	}
+
+	err = service.InitCardPrices()
+
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

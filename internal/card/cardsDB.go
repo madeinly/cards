@@ -111,7 +111,7 @@ func Ungz(gzPath string, filePath string) error {
 
 }
 
-func SetPricesDB() error {
+func FetchHistoricPrices() error {
 
 	url := "https://mtgjson.com/api/v5/AllPrices.json.gz"
 

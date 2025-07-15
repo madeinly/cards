@@ -18,5 +18,7 @@ var updateCardsDB = &cobra.Command{
 		if err != nil {
 			fmt.Println(err.Error())
 		}
+
+		fmt.Println("the mtg cards database has been updated")
 	},
 }

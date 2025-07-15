@@ -15,7 +15,6 @@ import (
 )
 
 func UpdateCardsDB() error {
-	// 1. Get paths
 	cardsPath, err := card.CardsPath()
 	if err != nil {
 		return fmt.Errorf("failed to get cards path: %w", err)
@@ -80,6 +79,23 @@ func verifySQLiteDB(path string) error {
 	defer db.Close()
 
 	if _, err := db.Exec("PRAGMA quick_check"); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func InitCardPrices() error {
+
+	err := card.FetchHistoricPrices()
+
+	if err != nil {
+		return err
+	}
+
+	err = card.SetupPriceTable()
+
+	if err != nil {
 		return err
 	}
 

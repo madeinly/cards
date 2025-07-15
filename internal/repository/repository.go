@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"path"
 	"sync"
@@ -12,8 +11,8 @@ import (
 )
 
 var (
-	db     *sql.DB
-	dbOnce sync.Once
+	cardsDB *sql.DB
+	dbOnce  sync.Once
 )
 
 func InitCardsDB() (*sql.DB, error) {
@@ -28,28 +27,34 @@ func InitCardsDB() (*sql.DB, error) {
 
 		dbPath := path.Join(cardsPath, "mtgDB.sqlite")
 
-		db, initErr = sql.Open("sqlite", fmt.Sprintf("file:%s?mode=ro&immutable=1", dbPath))
+		cardsDB, initErr = sql.Open("sqlite", fmt.Sprintf("file:%s?mode=ro&immutable=1", dbPath))
 		if initErr != nil {
 			return
 		}
 
-		db.SetMaxOpenConns(1)
-		db.SetMaxIdleConns(1)
-		db.SetConnMaxLifetime(0)
+		cardsDB.SetMaxOpenConns(1)
+		cardsDB.SetMaxIdleConns(1)
+		cardsDB.SetConnMaxLifetime(0)
 
-		if initErr = db.Ping(); initErr != nil {
-			db.Close()
+		if initErr = cardsDB.Ping(); initErr != nil {
+			cardsDB.Close()
 			return
 		}
 	})
 
-	fmt.Println("database online")
-	return db, initErr
+	return cardsDB, initErr
 }
 
 func GetCardsDB() (*sql.DB, error) {
-	if db == nil {
-		return nil, errors.New("database not initialized - call InitDB first")
+	if cardsDB != nil {
+		return cardsDB, nil
 	}
-	return db, nil
+
+	cardsDB, err := InitCardsDB()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return cardsDB, nil
 }

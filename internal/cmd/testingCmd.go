@@ -1,10 +1,11 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"githube.com/madeinly/cards/internal/repository"
+	"githube.com/madeinly/cards/internal/service"
 )
 
 func init() {
@@ -14,26 +15,21 @@ func init() {
 var testingCmd = &cobra.Command{
 	Use: "testing",
 	Run: func(cmd *cobra.Command, args []string) {
-		_, err := repository.InitCardsDB()
+
+		card, err := service.GetCardFromID("9a833fa7-5934-4c04-be42-e215a61f450e")
 
 		if err != nil {
-			fmt.Println(err.Error())
+			fmt.Printf("There was an error fetching the data: %v", err)
+			return
 		}
 
-		db, err := repository.GetCardsDB()
-
-		if _, err := db.Exec("PRAGMA quick_check"); err != nil {
-			fmt.Println(err.Error())
-		}
-
-		fmt.Println("database looks fine")
+		jsonCard, err := json.MarshalIndent(card, "", " ")
 
 		if err != nil {
-			fmt.Println(err.Error())
+			fmt.Printf("there was an error building the json: %v", err.Error())
+			return
 		}
 
-		db.Close()
-
-		fmt.Println("finish testing")
+		fmt.Println(string(jsonCard))
 	},
 }

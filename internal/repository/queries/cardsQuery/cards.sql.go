@@ -55,3 +55,16 @@ func (q *Queries) GetCard(ctx context.Context, scryfallid string) (GetCardRow, e
 	)
 	return i, err
 }
+
+const getPrice = `-- name: GetPrice :one
+SELECT price
+FROM cards_price
+WHERE card_id = ?1
+`
+
+func (q *Queries) GetPrice(ctx context.Context, cardid string) (float64, error) {
+	row := q.queryRow(ctx, q.getPriceStmt, getPrice, cardid)
+	var price float64
+	err := row.Scan(&price)
+	return price, err
+}

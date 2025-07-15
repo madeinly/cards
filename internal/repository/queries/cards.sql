@@ -16,3 +16,8 @@ JOIN
     sets s ON c.setCode = s.code
 WHERE 
     ci.scryfallId = ?;
+
+-- name: GetPrice :one
+SELECT price
+FROM cards_price
+WHERE card_id = @cardID;

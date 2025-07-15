@@ -16,7 +16,7 @@ var testingCmd = &cobra.Command{
 	Use: "testing",
 	Run: func(cmd *cobra.Command, args []string) {
 
-		card, err := service.GetCardFromID("9a833fa7-5934-4c04-be42-e215a61f450e")
+		card, err := service.GetCardFromID("653cc07b-0f53-4b5b-9c5f-885b8b4a6e5f")
 
 		if err != nil {
 			fmt.Printf("There was an error fetching the data: %v", err)

@@ -27,6 +27,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getCardStmt, err = db.PrepareContext(ctx, getCard); err != nil {
 		return nil, fmt.Errorf("error preparing query GetCard: %w", err)
 	}
+	if q.getPriceStmt, err = db.PrepareContext(ctx, getPrice); err != nil {
+		return nil, fmt.Errorf("error preparing query GetPrice: %w", err)
+	}
 	return &q, nil
 }
 
@@ -35,6 +38,11 @@ func (q *Queries) Close() error {
 	if q.getCardStmt != nil {
 		if cerr := q.getCardStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getCardStmt: %w", cerr)
+		}
+	}
+	if q.getPriceStmt != nil {
+		if cerr := q.getPriceStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getPriceStmt: %w", cerr)
 		}
 	}
 	return err
@@ -74,15 +82,17 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 }
 
 type Queries struct {
-	db          DBTX
-	tx          *sql.Tx
-	getCardStmt *sql.Stmt
+	db           DBTX
+	tx           *sql.Tx
+	getCardStmt  *sql.Stmt
+	getPriceStmt *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
-		db:          tx,
-		tx:          tx,
-		getCardStmt: q.getCardStmt,
+		db:           tx,
+		tx:           tx,
+		getCardStmt:  q.getCardStmt,
+		getPriceStmt: q.getPriceStmt,
 	}
 }

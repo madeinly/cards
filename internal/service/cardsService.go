@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/madeinly/core"
 	"githube.com/madeinly/cards/internal/card"
 	"githube.com/madeinly/cards/internal/repository"
 	"githube.com/madeinly/cards/internal/repository/queries/cardsQuery"
@@ -19,9 +20,19 @@ func GetCardFromID(cardID string) (card.Card, error) {
 		fmt.Println(err.Error())
 	}
 
-	q := cardsQuery.New(cardsDB)
+	qCards := cardsQuery.New(cardsDB)
 
-	repoCard, err := q.GetCard(ctx, cardID)
+	repoCard, err := qCards.GetCard(ctx, cardID)
+
+	if err != nil {
+		return card.Card{}, err
+	}
+
+	db := core.DB()
+
+	qCore := cardsQuery.New(db)
+
+	price, err := qCore.GetPrice(ctx, repoCard.Uuid)
 
 	if err != nil {
 		return card.Card{}, err
@@ -38,5 +49,6 @@ func GetCardFromID(cardID string) (card.Card, error) {
 		Rarity:    repoCard.Rarity,
 		Colors:    card.TransformColors(repoCard.Colors),
 		Types:     card.TransformTypes(repoCard.Types),
+		Price:     price,
 	}, nil
 }

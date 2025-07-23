@@ -7,7 +7,7 @@ import (
 var Routes = []coreModels.Route{
 	{
 		Type:    "GET",
-		Pattern: "/user",
+		Pattern: "/card",
 		Handler: GetCard,
 	},
 }

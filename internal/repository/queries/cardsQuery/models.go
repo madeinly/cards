@@ -61,7 +61,7 @@ type Card struct {
 	Manacost                sql.NullString  `json:"manacost"`
 	Manavalue               float64         `json:"manavalue"`
 	Name                    string          `json:"name"`
-	Number                  sql.NullString  `json:"number"`
+	Number                  string          `json:"number"`
 	Originalprintings       sql.NullString  `json:"originalprintings"`
 	Originalreleasedate     sql.NullString  `json:"originalreleasedate"`
 	Originaltext            sql.NullString  `json:"originaltext"`

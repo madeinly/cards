@@ -4,15 +4,13 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/madeinly/cards/internal/card"
+	"github.com/madeinly/cards/internal/repository"
+	"github.com/madeinly/cards/internal/repository/queries/cardsQuery"
 	"github.com/madeinly/core"
-	"githube.com/madeinly/cards/internal/card"
-	"githube.com/madeinly/cards/internal/repository"
-	"githube.com/madeinly/cards/internal/repository/queries/cardsQuery"
 )
 
-func GetCardFromID(cardID string) (card.Card, error) {
-
-	ctx := context.Background()
+func GetCardFromID(ctx context.Context, cardID string) (card.Card, error) {
 
 	cardsDB, err := repository.GetCardsDB()
 
@@ -46,6 +44,7 @@ func GetCardFromID(cardID string) (card.Card, error) {
 		SetCode:   repoCard.Setcode,
 		SetName:   repoCard.Setname,
 		ManaValue: int64(repoCard.Manavalue),
+		Number:    repoCard.Number,
 		Rarity:    repoCard.Rarity,
 		Colors:    card.TransformColors(repoCard.Colors),
 		Types:     card.TransformTypes(repoCard.Types),

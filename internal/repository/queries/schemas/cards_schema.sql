@@ -51,7 +51,7 @@ CREATE TABLE cards (
 	manaCost TEXT,
 	manaValue FLOAT NOT NULL,
 	name TEXT NOT NULL,
-	number TEXT,
+	number TEXT NOT NULL,
 	originalPrintings TEXT,
 	originalReleaseDate TEXT,
 	originalText TEXT,

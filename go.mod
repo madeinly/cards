@@ -1,4 +1,4 @@
-module githube.com/madeinly/cards
+module github.com/madeinly/cards
 
 go 1.24.3
 

@@ -1,11 +1,12 @@
 package cmd
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
+	"github.com/madeinly/cards/internal/service"
 	"github.com/spf13/cobra"
-	"githube.com/madeinly/cards/internal/service"
 )
 
 func init() {
@@ -15,8 +16,8 @@ func init() {
 var testingCmd = &cobra.Command{
 	Use: "testing",
 	Run: func(cmd *cobra.Command, args []string) {
-
-		card, err := service.GetCardFromID("653cc07b-0f53-4b5b-9c5f-885b8b4a6e5f")
+		ctx := context.Background()
+		card, err := service.GetCardFromID(ctx, "ae9a7d45-fec6-404e-965e-68e463d65fbf")
 
 		if err != nil {
 			fmt.Printf("There was an error fetching the data: %v", err)

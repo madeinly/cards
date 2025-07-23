@@ -6,7 +6,7 @@ import (
 	"path"
 	"sync"
 
-	"githube.com/madeinly/cards/internal/card"
+	"github.com/madeinly/cards/internal/card"
 	_ "modernc.org/sqlite"
 )
 

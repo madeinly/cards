@@ -10,8 +10,8 @@ import (
 
 	_ "modernc.org/sqlite"
 
-	"githube.com/madeinly/cards/internal/card"
-	"githube.com/madeinly/cards/internal/repository"
+	"github.com/madeinly/cards/internal/card"
+	"github.com/madeinly/cards/internal/repository"
 )
 
 func UpdateCardsDB() error {

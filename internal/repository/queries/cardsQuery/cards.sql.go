@@ -18,6 +18,7 @@ SELECT
     c.rarity,
     c.colors,
     c.types,
+    c.number,
     s.name AS setName
 FROM 
     cardIdentifiers ci
@@ -37,6 +38,7 @@ type GetCardRow struct {
 	Rarity    string  `json:"rarity"`
 	Colors    string  `json:"colors"`
 	Types     string  `json:"types"`
+	Number    string  `json:"number"`
 	Setname   string  `json:"setname"`
 }
 
@@ -51,6 +53,7 @@ func (q *Queries) GetCard(ctx context.Context, scryfallid string) (GetCardRow, e
 		&i.Rarity,
 		&i.Colors,
 		&i.Types,
+		&i.Number,
 		&i.Setname,
 	)
 	return i, err

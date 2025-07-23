@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/madeinly/cards/internal/service"
 	"github.com/spf13/cobra"
-	"githube.com/madeinly/cards/internal/service"
 )
 
 func init() {

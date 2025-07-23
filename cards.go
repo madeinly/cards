@@ -3,9 +3,9 @@ package cards
 import (
 	_ "embed"
 
+	"github.com/madeinly/cards/internal/cmd"
+	"github.com/madeinly/cards/internal/service"
 	coreModels "github.com/madeinly/core/models"
-	"githube.com/madeinly/cards/internal/cmd"
-	"githube.com/madeinly/cards/internal/service"
 )
 
 //go:embed internal/repository/queries/schemas/initial_schema.sql

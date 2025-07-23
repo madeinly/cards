@@ -7,6 +7,7 @@ SELECT
     c.rarity,
     c.colors,
     c.types,
+    c.number,
     s.name AS setName
 FROM 
     cardIdentifiers ci

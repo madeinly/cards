@@ -1,12 +1,26 @@
 version: "2"
 sql:
   - engine: "sqlite"
-    schema: ["internal/repository/queries/schemas/*"]
-    queries: "internal/repository/queries/*"
+    schema: ["internal/schemas/initial_schema.sql"]
+    queries: "internal/queries/app/*.sql"
     gen:
       go:
-        package: "cardsQuery"
-        out: "internal/repository/queries/cardsQuery"
+        package: "appDB"
+        out: "internal/sqlc/app"
+        overrides:
+          - db_type: "boolean"
+            go_type: "bool"
+        sql_package: "database/sql"
+        emit_json_tags: true
+        emit_prepared_queries: true
+
+  - engine: "sqlite"
+    schema: ["internal/schemas/cards_schema.sql"]
+    queries: "internal/queries/cards/*.sql"
+    gen:
+      go:
+        package: "mtgDB"
+        out: "internal/sqlc/cards"
         overrides:
           - db_type: "boolean"
             go_type: "bool"

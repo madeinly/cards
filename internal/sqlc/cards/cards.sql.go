@@ -3,10 +3,11 @@
 //   sqlc v1.29.0
 // source: cards.sql
 
-package cardsQuery
+package mtgDB
 
 import (
 	"context"
+	"database/sql"
 )
 
 const getCard = `-- name: GetCard :one
@@ -21,7 +22,7 @@ SELECT
     c.number,
     s.name AS setName
 FROM 
-    cardIdentifiers ci
+    cardidentifiers ci
 JOIN 
     cards c ON ci.uuid = c.uuid
 JOIN 
@@ -59,15 +60,15 @@ func (q *Queries) GetCard(ctx context.Context, scryfallid string) (GetCardRow, e
 	return i, err
 }
 
-const getPrice = `-- name: GetPrice :one
-SELECT price
-FROM cards_price
-WHERE card_id = ?1
+const getCardNameES = `-- name: GetCardNameES :one
+SELECT name
+FROM cardForeignData
+WHERE uuid = ?1 AND language = "Spanish"
 `
 
-func (q *Queries) GetPrice(ctx context.Context, cardid string) (float64, error) {
-	row := q.queryRow(ctx, q.getPriceStmt, getPrice, cardid)
-	var price float64
-	err := row.Scan(&price)
-	return price, err
+func (q *Queries) GetCardNameES(ctx context.Context, id sql.NullString) (sql.NullString, error) {
+	row := q.queryRow(ctx, q.getCardNameESStmt, getCardNameES, id)
+	var name sql.NullString
+	err := row.Scan(&name)
+	return name, err
 }

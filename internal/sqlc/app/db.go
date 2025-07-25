@@ -2,7 +2,7 @@
 // versions:
 //   sqlc v1.29.0
 
-package cardsQuery
+package appDB
 
 import (
 	"context"
@@ -24,8 +24,17 @@ func New(db DBTX) *Queries {
 func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	q := Queries{db: db}
 	var err error
+	if q.createCardStmt, err = db.PrepareContext(ctx, createCard); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateCard: %w", err)
+	}
 	if q.getCardStmt, err = db.PrepareContext(ctx, getCard); err != nil {
 		return nil, fmt.Errorf("error preparing query GetCard: %w", err)
+	}
+	if q.getCardHasVendorByIdStmt, err = db.PrepareContext(ctx, getCardHasVendorById); err != nil {
+		return nil, fmt.Errorf("error preparing query GetCardHasVendorById: %w", err)
+	}
+	if q.getCardStockByIdStmt, err = db.PrepareContext(ctx, getCardStockById); err != nil {
+		return nil, fmt.Errorf("error preparing query GetCardStockById: %w", err)
 	}
 	if q.getPriceStmt, err = db.PrepareContext(ctx, getPrice); err != nil {
 		return nil, fmt.Errorf("error preparing query GetPrice: %w", err)
@@ -35,9 +44,24 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 
 func (q *Queries) Close() error {
 	var err error
+	if q.createCardStmt != nil {
+		if cerr := q.createCardStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createCardStmt: %w", cerr)
+		}
+	}
 	if q.getCardStmt != nil {
 		if cerr := q.getCardStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getCardStmt: %w", cerr)
+		}
+	}
+	if q.getCardHasVendorByIdStmt != nil {
+		if cerr := q.getCardHasVendorByIdStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getCardHasVendorByIdStmt: %w", cerr)
+		}
+	}
+	if q.getCardStockByIdStmt != nil {
+		if cerr := q.getCardStockByIdStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getCardStockByIdStmt: %w", cerr)
 		}
 	}
 	if q.getPriceStmt != nil {
@@ -82,17 +106,23 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 }
 
 type Queries struct {
-	db           DBTX
-	tx           *sql.Tx
-	getCardStmt  *sql.Stmt
-	getPriceStmt *sql.Stmt
+	db                       DBTX
+	tx                       *sql.Tx
+	createCardStmt           *sql.Stmt
+	getCardStmt              *sql.Stmt
+	getCardHasVendorByIdStmt *sql.Stmt
+	getCardStockByIdStmt     *sql.Stmt
+	getPriceStmt             *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
-		db:           tx,
-		tx:           tx,
-		getCardStmt:  q.getCardStmt,
-		getPriceStmt: q.getPriceStmt,
+		db:                       tx,
+		tx:                       tx,
+		createCardStmt:           q.createCardStmt,
+		getCardStmt:              q.getCardStmt,
+		getCardHasVendorByIdStmt: q.getCardHasVendorByIdStmt,
+		getCardStockByIdStmt:     q.getCardStockByIdStmt,
+		getPriceStmt:             q.getPriceStmt,
 	}
 }

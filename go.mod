@@ -3,19 +3,14 @@ module github.com/madeinly/cards
 go 1.24.3
 
 require (
-	github.com/madeinly/core v0.0.0-20250625141359-99340a066fdc
 	github.com/spf13/cobra v1.9.1
 	modernc.org/sqlite v1.37.1
 )
 
 require (
-	github.com/BurntSushi/toml v1.5.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
-	github.com/fatih/color v1.18.0 // indirect
-	github.com/golang-migrate/migrate/v4 v4.18.3 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
-	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/ncruces/go-strftime v0.1.9 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect

@@ -130,3 +130,15 @@ CREATE TABLE sets (
 	totalSetSize INTEGER,
 	type TEXT
 )
+
+CREATE TABLE cardForeignData (
+	faceName TEXT,
+	flavorText TEXT,
+	identifiers TEXT,
+	language TEXT,
+	multiverseId INTEGER,
+	name TEXT,
+	text TEXT,
+	type TEXT,
+	uuid TEXT
+)

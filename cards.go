@@ -9,7 +9,7 @@ import (
 	coreModels "github.com/madeinly/core/models"
 )
 
-//go:embed internal/repository/queries/schemas/initial_schema.sql
+//go:embed internal/schemas/initial_schema.sql
 var initialSchema string
 
 var Feature = coreModels.FeaturePackage{

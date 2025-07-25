@@ -2,7 +2,7 @@
 // versions:
 //   sqlc v1.29.0
 
-package cardsQuery
+package mtgDB
 
 import (
 	"database/sql"
@@ -90,6 +90,18 @@ type Card struct {
 	Watermark               sql.NullString  `json:"watermark"`
 }
 
+type Cardforeigndatum struct {
+	Facename     sql.NullString `json:"facename"`
+	Flavortext   sql.NullString `json:"flavortext"`
+	Identifiers  sql.NullString `json:"identifiers"`
+	Language     sql.NullString `json:"language"`
+	Multiverseid sql.NullInt64  `json:"multiverseid"`
+	Name         sql.NullString `json:"name"`
+	Text         sql.NullString `json:"text"`
+	Type         sql.NullString `json:"type"`
+	Uuid         sql.NullString `json:"uuid"`
+}
+
 type Cardidentifier struct {
 	Cardkingdometchedid      sql.NullString `json:"cardkingdometchedid"`
 	Cardkingdomfoilid        sql.NullString `json:"cardkingdomfoilid"`
@@ -113,22 +125,6 @@ type Cardidentifier struct {
 	Tcgplayeretchedproductid sql.NullString `json:"tcgplayeretchedproductid"`
 	Tcgplayerproductid       sql.NullString `json:"tcgplayerproductid"`
 	Uuid                     sql.NullString `json:"uuid"`
-}
-
-type CardsPrice struct {
-	CardID    string  `json:"card_id"`
-	Finish    string  `json:"finish"`
-	Type      string  `json:"type"`
-	Price     float64 `json:"price"`
-	UpdatedAt string  `json:"updated_at"`
-}
-
-type CardsVendor struct {
-	CardID    string `json:"card_id"`
-	VendorID  string `json:"vendor_id"`
-	Qty       int64  `json:"qty"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
 }
 
 type Set struct {

@@ -6,17 +6,15 @@ CREATE TABLE IF NOT EXISTS cards (
     url_image   TEXT NOT NULL,
     set_name    TEXT NOT NULL,
     set_code    TEXT NOT NULL,
-    mana_value  TEXT NOT NULL,
+    mana_value  INTEGER NOT NULL,
     colors      TEXT NOT NULL,
     types       TEXT NOT NULL,
     finish      TEXT NOT NULL,
     has_vendor  BOOLEAN NOT NULL DEFAULT 0 CHECK(has_vendor IN (0, 1)),
     language    TEXT NOT NULL,
-    condition   TEXT NOT NULL,
     visibility  TEXT NOT NULL,
     image_path  TEXT, -- Consider NOT NULL if required
     image_url   TEXT,  -- Consider NOT NULL if required
-    note        TEXT, 
     stock       INTEGER NOT NULL DEFAULT 0,
     created_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -39,3 +37,4 @@ CREATE TABLE IF NOT EXISTS cards_vendor (
     updated_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (card_id, vendor_id)
 );
+

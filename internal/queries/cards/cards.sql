@@ -10,7 +10,7 @@ SELECT
     c.number,
     s.name AS setName
 FROM 
-    cardIdentifiers ci
+    cardidentifiers ci
 JOIN 
     cards c ON ci.uuid = c.uuid
 JOIN 
@@ -18,7 +18,8 @@ JOIN
 WHERE 
     ci.scryfallId = ?;
 
--- name: GetPrice :one
-SELECT price
-FROM cards_price
-WHERE card_id = @cardID;
+
+-- name: GetCardNameES :one
+SELECT name
+FROM cardForeignData
+WHERE uuid = @id AND language = "Spanish";

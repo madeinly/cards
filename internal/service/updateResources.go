@@ -11,7 +11,7 @@ import (
 	_ "modernc.org/sqlite"
 
 	"github.com/madeinly/cards/internal/card"
-	"github.com/madeinly/cards/internal/repository"
+	"github.com/madeinly/cards/internal/database"
 )
 
 func UpdateCardsDB() error {
@@ -43,7 +43,7 @@ func UpdateCardsDB() error {
 		return fmt.Errorf("failed to set permissions: %w", err)
 	}
 
-	db, _ := repository.GetCardsDB()
+	db, _ := database.GetCardsDB()
 
 	var dbWasInUse bool
 
@@ -62,7 +62,7 @@ func UpdateCardsDB() error {
 	}
 
 	if dbWasInUse {
-		repository.InitCardsDB()
+		database.InitCardsDB()
 	}
 
 	return nil

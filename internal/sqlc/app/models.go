@@ -25,7 +25,6 @@ type Card struct {
 	Visibility string         `json:"visibility"`
 	ImagePath  sql.NullString `json:"image_path"`
 	ImageUrl   sql.NullString `json:"image_url"`
-	Note       sql.NullString `json:"note"`
 	Stock      int64          `json:"stock"`
 	CreatedAt  string         `json:"created_at"`
 	UpdatedAt  string         `json:"updated_at"`

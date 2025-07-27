@@ -10,6 +10,27 @@ import (
 	"database/sql"
 )
 
+const cardExists = `-- name: CardExists :one
+SELECT EXISTS (
+    SELECT 1
+    FROM cards
+    WHERE id = ?1 AND finish = ?2 AND language = ?3
+)
+`
+
+type CardExistsParams struct {
+	ID       string `json:"id"`
+	Finish   string `json:"finish"`
+	Language string `json:"language"`
+}
+
+func (q *Queries) CardExists(ctx context.Context, arg CardExistsParams) (int64, error) {
+	row := q.queryRow(ctx, q.cardExistsStmt, cardExists, arg.ID, arg.Finish, arg.Language)
+	var column_1 int64
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const createCard = `-- name: CreateCard :exec
 INSERT INTO cards (
     id,
@@ -28,12 +49,11 @@ INSERT INTO cards (
     visibility,
     image_path,
     image_url,
-    note,
     stock
 ) VALUES (
     ?1, ?2, ?3, ?4, ?5, ?6, ?7,
     ?8, ?9, ?10, ?11, ?12, ?13,
-    ?14, ?15, ?16, ?17, ?18
+    ?14, ?15, ?16, ?17
 )
 `
 
@@ -54,7 +74,6 @@ type CreateCardParams struct {
 	Visibility string         `json:"visibility"`
 	ImagePath  sql.NullString `json:"image_path"`
 	ImageUrl   sql.NullString `json:"image_url"`
-	Note       sql.NullString `json:"note"`
 	Stock      int64          `json:"stock"`
 }
 
@@ -76,14 +95,13 @@ func (q *Queries) CreateCard(ctx context.Context, arg CreateCardParams) error {
 		arg.Visibility,
 		arg.ImagePath,
 		arg.ImageUrl,
-		arg.Note,
 		arg.Stock,
 	)
 	return err
 }
 
 const getCard = `-- name: GetCard :one
-SELECT id, name_en, name_es, sku, url_image, set_name, set_code, mana_value, colors, types, finish, has_vendor, language, visibility, image_path, image_url, note, stock, created_at, updated_at
+SELECT id, name_en, name_es, sku, url_image, set_name, set_code, mana_value, colors, types, finish, has_vendor, language, visibility, image_path, image_url, stock, created_at, updated_at
 FROM cards
 WHERE id = ?1
 `
@@ -108,7 +126,6 @@ func (q *Queries) GetCard(ctx context.Context, id string) (Card, error) {
 		&i.Visibility,
 		&i.ImagePath,
 		&i.ImageUrl,
-		&i.Note,
 		&i.Stock,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -132,11 +149,17 @@ func (q *Queries) GetCardHasVendorById(ctx context.Context, id string) (bool, er
 const getCardStockById = `-- name: GetCardStockById :one
 SELECT stock
 FROM cards
-WHERE id = ?1
+WHERE id = ?1 AND language = ?2 AND finish = ?3
 `
 
-func (q *Queries) GetCardStockById(ctx context.Context, id string) (int64, error) {
-	row := q.queryRow(ctx, q.getCardStockByIdStmt, getCardStockById, id)
+type GetCardStockByIdParams struct {
+	ID       string `json:"id"`
+	Language string `json:"language"`
+	Finish   string `json:"finish"`
+}
+
+func (q *Queries) GetCardStockById(ctx context.Context, arg GetCardStockByIdParams) (int64, error) {
+	row := q.queryRow(ctx, q.getCardStockByIdStmt, getCardStockById, arg.ID, arg.Language, arg.Finish)
 	var stock int64
 	err := row.Scan(&stock)
 	return stock, err
@@ -158,4 +181,27 @@ func (q *Queries) GetPrice(ctx context.Context, arg GetPriceParams) (float64, er
 	var price float64
 	err := row.Scan(&price)
 	return price, err
+}
+
+const updateCardStock = `-- name: UpdateCardStock :exec
+UPDATE cards
+SET stock = ?1
+WHERE id = ?2 AND language = ?3 AND finish = ?4
+`
+
+type UpdateCardStockParams struct {
+	Stock    int64  `json:"stock"`
+	ID       string `json:"id"`
+	Language string `json:"language"`
+	Finish   string `json:"finish"`
+}
+
+func (q *Queries) UpdateCardStock(ctx context.Context, arg UpdateCardStockParams) error {
+	_, err := q.exec(ctx, q.updateCardStockStmt, updateCardStock,
+		arg.Stock,
+		arg.ID,
+		arg.Language,
+		arg.Finish,
+	)
+	return err
 }

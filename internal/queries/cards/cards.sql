@@ -23,3 +23,5 @@ WHERE
 SELECT name
 FROM cardForeignData
 WHERE uuid = @id AND language = "Spanish";
+
+

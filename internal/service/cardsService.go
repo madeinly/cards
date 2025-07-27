@@ -6,15 +6,15 @@ import (
 	"fmt"
 
 	"github.com/madeinly/cards/internal/card"
-	"github.com/madeinly/cards/internal/repository"
+	"github.com/madeinly/cards/internal/database"
 	appDB "github.com/madeinly/cards/internal/sqlc/app"
 	mtgDB "github.com/madeinly/cards/internal/sqlc/cards"
 	"github.com/madeinly/core"
 )
 
-func GetCardFromID(ctx context.Context, cardID string, finish string) (card.Card, error) {
+func GetCardFromID(ctx context.Context, cardScryFallID string, finish string, language string) (card.Card, error) {
 
-	cardsDB, err := repository.GetCardsDB()
+	cardsDB, err := database.GetCardsDB()
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -22,23 +22,28 @@ func GetCardFromID(ctx context.Context, cardID string, finish string) (card.Card
 
 	qCards := mtgDB.New(cardsDB)
 
-	repoCard, err := qCards.GetCard(ctx, cardID)
+	fmt.Println("value on service:", cardScryFallID)
+	repoCard, err := qCards.GetCard(ctx, cardScryFallID)
 
 	if err != nil {
-		return card.Card{}, err
+		return card.Card{}, fmt.Errorf("could not find the card: %w", err)
 	}
 
-	nameES, err := qCards.GetCardNameES(ctx, sql.NullString{Valid: true, String: cardID})
+	nameES, err := qCards.GetCardNameES(ctx, sql.NullString{Valid: true, String: repoCard.Uuid})
 
 	if err != nil && err != sql.ErrNoRows {
-		return card.Card{}, fmt.Errorf("error finding 'es' name ")
+		nameES = sql.NullString{String: ""}
 	}
 
 	db := core.DB()
 
 	qApp := appDB.New(db)
 
-	stock, err := qApp.GetCardStockById(ctx, cardID)
+	stock, err := qApp.GetCardStockById(ctx, appDB.GetCardStockByIdParams{
+		ID:       repoCard.Uuid,
+		Language: language,
+		Finish:   finish,
+	})
 
 	if err != nil && err != sql.ErrNoRows {
 		return card.Card{}, fmt.Errorf("there was an error getting the stock")
@@ -54,14 +59,14 @@ func GetCardFromID(ctx context.Context, cardID string, finish string) (card.Card
 	})
 
 	if err != nil {
-		return card.Card{}, err
+		return card.Card{}, fmt.Errorf("there was an error getting the price")
 	}
 
 	return card.Card{
 		ID:        repoCard.Uuid,
 		NameEN:    repoCard.Name,
 		NameES:    nameES.String,
-		ImageURL:  card.GetImageURL(cardID),
+		ImageURL:  card.GetImageURL(cardScryFallID),
 		SetCode:   repoCard.Setcode,
 		SetName:   repoCard.Setname,
 		ManaValue: int64(repoCard.Manavalue),
@@ -76,7 +81,7 @@ func GetCardFromID(ctx context.Context, cardID string, finish string) (card.Card
 
 func RegisterCard(ctx context.Context, params RegisterCardParams) error {
 
-	card, err := GetCardFromID(ctx, params.ID, params.Finish)
+	card, err := GetCardFromID(ctx, params.ID, params.Finish, params.Language)
 
 	if err != nil && err != sql.ErrNoRows {
 
@@ -86,6 +91,20 @@ func RegisterCard(ctx context.Context, params RegisterCardParams) error {
 	db := core.DB()
 
 	qApp := appDB.New(db)
+
+	exists, err := qApp.CardExists(ctx, appDB.CardExistsParams{
+		ID:       params.ID,
+		Finish:   params.Finish,
+		Language: params.Language,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	if exists == 1 {
+		return fmt.Errorf("the element already exist")
+	}
 
 	hasVendor, err := qApp.GetCardHasVendorById(ctx, params.ID)
 
@@ -97,16 +116,10 @@ func RegisterCard(ctx context.Context, params RegisterCardParams) error {
 		hasVendor = false
 	}
 
-	hasVendor = hasVendor || params.Vendor != "cartonPremium"
-
-	stock, err := qApp.GetCardStockById(ctx, params.ID)
+	hasVendor = hasVendor || params.Vendor != ""
 
 	if err != nil && err != sql.ErrNoRows {
 		return fmt.Errorf("there was a problem getting the stock")
-	}
-
-	if err == sql.ErrNoRows {
-		stock = 0
 	}
 
 	sku := params.Language + params.Finish + card.SetCode + card.Number
@@ -125,10 +138,10 @@ func RegisterCard(ctx context.Context, params RegisterCardParams) error {
 		Finish:     params.Finish,
 		HasVendor:  hasVendor,
 		Language:   params.Language,
-		Visibility: "",
+		Visibility: params.Visibility,
 		ImagePath:  sql.NullString{Valid: false},
 		ImageUrl:   sql.NullString{Valid: false},
-		Stock:      stock + params.Stock,
+		Stock:      params.Stock,
 	})
 
 	if err != nil {
@@ -136,4 +149,11 @@ func RegisterCard(ctx context.Context, params RegisterCardParams) error {
 	}
 
 	return nil
+
+}
+
+func RegisterBulk(ctx context.Context, filename string) error {
+
+	return nil
+
 }

@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS cards (
-    id          TEXT NOT NULL UNIQUE PRIMARY KEY,
+    id          TEXT NOT NULL UNIQUE,
     name_en     TEXT NOT NULL,
     name_es     TEXT NOT NULL,
     sku         TEXT NOT NULL UNIQUE,
@@ -9,15 +9,17 @@ CREATE TABLE IF NOT EXISTS cards (
     mana_value  INTEGER NOT NULL,
     colors      TEXT NOT NULL,
     types       TEXT NOT NULL,
-    finish      TEXT NOT NULL,
+    finish      TEXT NOT NULL CHECK(finish IN ('foil', 'normal', 'etched')),
     has_vendor  BOOLEAN NOT NULL DEFAULT 0 CHECK(has_vendor IN (0, 1)),
-    language    TEXT NOT NULL,
-    visibility  TEXT NOT NULL,
+    language    TEXT NOT NULL CHECK(language IN ('Spanish', 'English')),
+    visibility  TEXT NOT NULL CHECK(visibility IN (0, 1)),
     image_path  TEXT, -- Consider NOT NULL if required
     image_url   TEXT,  -- Consider NOT NULL if required
     stock       INTEGER NOT NULL DEFAULT 0,
     created_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (id, language, finish)
 );
 
 CREATE TABLE IF NOT EXISTS cards_price (

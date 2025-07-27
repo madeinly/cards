@@ -27,20 +27,34 @@ INSERT INTO cards (
     visibility,
     image_path,
     image_url,
-    note,
     stock
 ) VALUES (
     @id, @name_es, @name_en, @sku, @url_image, @set_name, @set_code,
     @mana_value, @colors, @types, @finish, @has_vendor, @language,
-    @visibility, @image_path, @image_url, @note, @stock
+    @visibility, @image_path, @image_url, @stock
 );
 
 -- name: GetCardStockById :one
 SELECT stock
 FROM cards
-WHERE id = @id;
+WHERE id = @id AND language = @language AND finish = @finish;
 
 -- name: GetCardHasVendorById :one
 SELECT has_vendor
 FROM cards
-WHERE id = @id
+WHERE id = @id;
+
+
+-- name: UpdateCardStock :exec
+UPDATE cards
+SET stock = @stock
+WHERE id = @id AND language = @language AND finish = @finish;
+
+
+
+-- name: CardExists :one
+SELECT EXISTS (
+    SELECT 1
+    FROM cards
+    WHERE id = @id AND finish = @finish AND language = @language
+);

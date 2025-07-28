@@ -32,7 +32,6 @@ type Vendor struct {
 
 type vendorList struct {
 	Retail finish `json:"retail,omitempty"`
-	// Buylist finish `json:"buylist,omitempty"`
 }
 
 type finish struct {

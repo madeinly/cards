@@ -50,6 +50,37 @@ func CardsPath() (string, error) {
 	return cardsFolderPath, nil
 }
 
+func ImportsPath() string {
+
+	CardsPath, err := CardsPath()
+
+	if err != nil {
+		fmt.Println(err.Error())
+		panic(0)
+	}
+
+	importsPath := path.Join(CardsPath, "imports")
+
+	_, err = os.Stat(importsPath)
+
+	if err != nil && os.IsNotExist(err) {
+		err = os.MkdirAll(importsPath, 0755)
+
+		if err != nil {
+			panic(0)
+		}
+
+		return importsPath
+	}
+
+	if err != nil {
+		panic(0)
+	}
+
+	return importsPath
+
+}
+
 func DownLoadFile(url string, path string) error {
 
 	resp, err := http.Get(url)

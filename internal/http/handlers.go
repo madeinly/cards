@@ -4,10 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
-	"os"
-	"path/filepath"
 	"strconv"
 
 	"github.com/madeinly/cards/internal/card"
@@ -120,37 +117,34 @@ func PostCreateCard(w http.ResponseWriter, r *http.Request) {
 
 func BulkCreate(w http.ResponseWriter, r *http.Request) {
 
-	// 1. Limit size (optional but recommended)
-	r.Body = http.MaxBytesReader(w, r.Body, 10<<20) // 10 MB
+	r.Body = http.MaxBytesReader(w, r.Body, 10<<20)
 
-	// 2. Parse multipart form
 	if err := r.ParseMultipartForm(10 << 20); err != nil {
+		fmt.Println("too big of a file")
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	// 3. Grab the file
-	file, header, err := r.FormFile("csv") // "csv" is the form field name
+	ctx := r.Context()
+
+	file, header, err := r.FormFile("cards_import")
+
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		fmt.Println("cant parse the file")
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
 	defer file.Close()
 
-	// 4. Create destination
-	dst, err := os.Create(filepath.Join("/tmp/uploads", header.Filename))
+	err = service.RegisterBulk(ctx, file, header)
+
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer dst.Close()
-
-	// 5. Stream copy
-	if _, err := io.Copy(dst, file); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		fmt.Println(err.Error())
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(http.StatusOK)
 
 }

@@ -1,11 +1,10 @@
 package service
 
 type RegisterCardParams struct {
-	ID         string
-	Vendor     string
-	Language   string
-	Finish     string
-	Stock      int64
-	Condition  string
-	Visibility string
+	ID         string `json:"scryfall_id"`
+	Vendor     string `json:"vendor"`
+	Language   string `json:"language"`
+	Finish     string `json:"finish"`
+	Stock      int64  `json:"stock"`
+	Visibility string `json:"visibility"`
 }

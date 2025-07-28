@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS cards (
-    id          TEXT NOT NULL UNIQUE,
+    id          TEXT NOT NULL,
     name_en     TEXT NOT NULL,
     name_es     TEXT NOT NULL,
     sku         TEXT NOT NULL UNIQUE,

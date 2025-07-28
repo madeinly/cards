@@ -29,7 +29,7 @@ INSERT INTO cards (
     image_url,
     stock
 ) VALUES (
-    @id, @name_es, @name_en, @sku, @url_image, @set_name, @set_code,
+    @id, @name_en, @name_es, @sku, @url_image, @set_name, @set_code,
     @mana_value, @colors, @types, @finish, @has_vendor, @language,
     @visibility, @image_path, @image_url, @stock
 );

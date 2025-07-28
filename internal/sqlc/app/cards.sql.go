@@ -59,8 +59,8 @@ INSERT INTO cards (
 
 type CreateCardParams struct {
 	ID         string         `json:"id"`
-	NameEs     string         `json:"name_es"`
 	NameEn     string         `json:"name_en"`
+	NameEs     string         `json:"name_es"`
 	Sku        string         `json:"sku"`
 	UrlImage   string         `json:"url_image"`
 	SetName    string         `json:"set_name"`
@@ -80,8 +80,8 @@ type CreateCardParams struct {
 func (q *Queries) CreateCard(ctx context.Context, arg CreateCardParams) error {
 	_, err := q.exec(ctx, q.createCardStmt, createCard,
 		arg.ID,
-		arg.NameEs,
 		arg.NameEn,
+		arg.NameEs,
 		arg.Sku,
 		arg.UrlImage,
 		arg.SetName,

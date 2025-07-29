@@ -8,3 +8,10 @@ type RegisterCardParams struct {
 	Stock      int64  `json:"stock"`
 	Visibility string `json:"visibility"`
 }
+
+type GetDashboardCardsParams struct {
+	SetCode  string
+	CardName string
+	Page     string
+	Limit    string
+}

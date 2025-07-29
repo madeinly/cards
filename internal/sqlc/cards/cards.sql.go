@@ -72,3 +72,37 @@ func (q *Queries) GetCardNameES(ctx context.Context, id sql.NullString) (sql.Nul
 	err := row.Scan(&name)
 	return name, err
 }
+
+const getSets = `-- name: GetSets :many
+SELECT code, name
+FROM sets
+WHERE isOnlineOnly = 0
+`
+
+type GetSetsRow struct {
+	Code string `json:"code"`
+	Name string `json:"name"`
+}
+
+func (q *Queries) GetSets(ctx context.Context) ([]GetSetsRow, error) {
+	rows, err := q.query(ctx, q.getSetsStmt, getSets)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetSetsRow
+	for rows.Next() {
+		var i GetSetsRow
+		if err := rows.Scan(&i.Code, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

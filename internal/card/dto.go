@@ -15,3 +15,8 @@ type Card struct {
 	Price     float64 `json:"card_price"`
 	Stock     int64   `json:"card_stock"`
 }
+
+type Set struct {
+	SetCode string `json:"card_setCode"`
+	SetName string `json:"card_setName"`
+}

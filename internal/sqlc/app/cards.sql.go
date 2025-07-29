@@ -165,6 +165,102 @@ func (q *Queries) GetCardStockById(ctx context.Context, arg GetCardStockByIdPara
 	return stock, err
 }
 
+const getCardsWithPrice = `-- name: GetCardsWithPrice :many
+SELECT
+    c.id, c.name_en, c.name_es, c.sku, c.url_image, c.set_name, c.set_code, c.mana_value, c.colors, c.types, c.finish, c.has_vendor, c.language, c.visibility, c.image_path, c.image_url, c.stock, c.created_at, c.updated_at,
+    p.price
+FROM
+    cards AS c
+JOIN
+    cards_price AS p
+      ON p.card_id = c.id
+     AND p.finish  = c.finish
+WHERE
+    (?1 = '' OR c.set_code = ?1)          
+    AND (?2 = '' OR c.name_en LIKE '%' || ?2 || '%')
+LIMIT  ?4
+OFFSET ?3
+`
+
+type GetCardsWithPriceParams struct {
+	SetCode interface{} `json:"set_code"`
+	Name    interface{} `json:"name"`
+	Offset  int64       `json:"offset"`
+	Limit   int64       `json:"limit"`
+}
+
+type GetCardsWithPriceRow struct {
+	ID         string         `json:"id"`
+	NameEn     string         `json:"name_en"`
+	NameEs     string         `json:"name_es"`
+	Sku        string         `json:"sku"`
+	UrlImage   string         `json:"url_image"`
+	SetName    string         `json:"set_name"`
+	SetCode    string         `json:"set_code"`
+	ManaValue  int64          `json:"mana_value"`
+	Colors     string         `json:"colors"`
+	Types      string         `json:"types"`
+	Finish     string         `json:"finish"`
+	HasVendor  bool           `json:"has_vendor"`
+	Language   string         `json:"language"`
+	Visibility string         `json:"visibility"`
+	ImagePath  sql.NullString `json:"image_path"`
+	ImageUrl   sql.NullString `json:"image_url"`
+	Stock      int64          `json:"stock"`
+	CreatedAt  string         `json:"created_at"`
+	UpdatedAt  string         `json:"updated_at"`
+	Price      float64        `json:"price"`
+}
+
+func (q *Queries) GetCardsWithPrice(ctx context.Context, arg GetCardsWithPriceParams) ([]GetCardsWithPriceRow, error) {
+	rows, err := q.query(ctx, q.getCardsWithPriceStmt, getCardsWithPrice,
+		arg.SetCode,
+		arg.Name,
+		arg.Offset,
+		arg.Limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetCardsWithPriceRow
+	for rows.Next() {
+		var i GetCardsWithPriceRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.NameEn,
+			&i.NameEs,
+			&i.Sku,
+			&i.UrlImage,
+			&i.SetName,
+			&i.SetCode,
+			&i.ManaValue,
+			&i.Colors,
+			&i.Types,
+			&i.Finish,
+			&i.HasVendor,
+			&i.Language,
+			&i.Visibility,
+			&i.ImagePath,
+			&i.ImageUrl,
+			&i.Stock,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Price,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getPrice = `-- name: GetPrice :one
 SELECT price
 FROM cards_price

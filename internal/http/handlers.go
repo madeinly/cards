@@ -29,8 +29,6 @@ func GetCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("cardID value", cardID)
-
 	card, err := service.GetCardFromID(r.Context(), cardID, cardFinish, cardLanguage)
 
 	if card.ID == "" {
@@ -146,5 +144,59 @@ func BulkCreate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+
+}
+
+func GetDashboardCards(w http.ResponseWriter, r *http.Request) {
+
+	setCode := r.URL.Query().Get("card_setCode")
+	cardName := r.URL.Query().Get("card_name")
+	cardPage := r.URL.Query().Get("card_page")
+	cardLimit := r.URL.Query().Get("card_limit")
+
+	bag := validation.New()
+
+	validation.Validate(bag, setCode, card.SetCodeRules)
+	validation.Validate(bag, cardName, card.CardNameRules)
+
+	if bag.HasErrors() {
+		_ = bag.WriteHTTP(w)
+		return
+	}
+
+	ctx := r.Context()
+
+	cards, err := service.GetDashboardCards(ctx, service.GetDashboardCardsParams{
+		SetCode:  setCode,
+		CardName: cardName,
+		Page:     cardPage,
+		Limit:    cardLimit,
+	})
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	json.NewEncoder(w).Encode(cards)
+
+}
+
+func GetSets(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+	sets, err := service.GetSets(ctx)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(sets)
 
 }

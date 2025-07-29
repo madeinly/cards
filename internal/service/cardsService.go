@@ -285,14 +285,15 @@ func RegisterCardTx(ctx context.Context, tx *sql.Tx, params RegisterCardParams) 
 	sku := strings.ToLower(params.Language) + "-" + params.Finish + "-" + card.SetCode + "-" + card.Number
 
 	err = qApp.CreateCard(ctx, appDB.CreateCardParams{
-		ID:         params.ID,
-		NameEn:     card.NameEN,
-		NameEs:     card.NameES,
-		Sku:        sku,
-		UrlImage:   card.ImageURL,
-		SetName:    card.SetName,
-		SetCode:    card.SetCode,
-		ManaValue:  card.ManaValue,
+		ID:        card.ID,
+		NameEn:    card.NameEN,
+		NameEs:    card.NameES,
+		Sku:       sku,
+		UrlImage:  card.ImageURL,
+		SetName:   card.SetName,
+		SetCode:   card.SetCode,
+		ManaValue: card.ManaValue,
+		// falta rarity y number
 		Colors:     card.Colors,
 		Types:      card.Types,
 		Finish:     params.Finish,
@@ -374,4 +375,92 @@ func GetCardFromIDTx(ctx context.Context, tx *sql.Tx, cardScryFallID string, fin
 		Price:     price,
 		Stock:     stock,
 	}, nil
+}
+
+func GetDashboardCards(ctx context.Context, params GetDashboardCardsParams) ([]card.Card, error) {
+
+	db := core.DB()
+
+	qApp := appDB.New(db)
+
+	page, err := strconv.ParseInt(params.Page, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	limit, err := strconv.ParseInt(params.Limit, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	offset := (page - 1) * limit
+
+	repoCards, err := qApp.GetCardsWithPrice(ctx, appDB.GetCardsWithPriceParams{
+		SetCode: params.SetCode,
+		Name:    params.CardName,
+		Offset:  offset,
+		Limit:   limit,
+	})
+
+	fmt.Println("repo cards", repoCards)
+
+	if err != nil && err == sql.ErrNoRows {
+
+		return []card.Card{}, nil
+	}
+
+	if err != nil {
+		return []card.Card{}, err
+	}
+
+	var cards []card.Card
+
+	for _, repoCard := range repoCards {
+
+		cards = append(cards, card.Card{
+			ID:        repoCard.ID,
+			NameEN:    repoCard.NameEn,
+			NameES:    repoCard.NameEs,
+			ImageURL:  repoCard.UrlImage,
+			SetCode:   repoCard.SetCode,
+			SetName:   repoCard.SetName,
+			ManaValue: repoCard.ManaValue,
+			Colors:    repoCard.Colors,
+			Types:     repoCard.Types,
+			Price:     repoCard.Price,
+			Stock:     repoCard.Stock,
+		})
+
+	}
+
+	return cards, nil
+}
+
+func GetSets(ctx context.Context) ([]card.Set, error) {
+
+	cardsDB, err := database.GetCardsDB()
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	qCards := mtgDB.New(cardsDB)
+
+	repoSets, err := qCards.GetSets(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var sets []card.Set
+
+	for _, repoSet := range repoSets {
+		sets = append(sets, card.Set{
+			SetCode: repoSet.Code,
+			SetName: repoSet.Name,
+		})
+	}
+
+	return sets, nil
+
 }

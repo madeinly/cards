@@ -58,3 +58,20 @@ SELECT EXISTS (
     FROM cards
     WHERE id = @id AND finish = @finish AND language = @language
 );
+
+
+-- name: GetCardsWithPrice :many
+SELECT
+    c.*,
+    p.price
+FROM
+    cards AS c
+JOIN
+    cards_price AS p
+      ON p.card_id = c.id
+     AND p.finish  = c.finish
+WHERE
+    (@set_code = '' OR c.set_code = @set_code)          
+    AND (@name = '' OR c.name_en LIKE '%' || @name || '%')
+LIMIT  @limit
+OFFSET @offset;

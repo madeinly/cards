@@ -15,10 +15,19 @@ var Routes = []coreModels.Route{
 		Pattern: "/card",
 		Handler: PostCreateCard,
 	},
-
 	{
 		Type:    "POST",
 		Pattern: "/card/bulk",
 		Handler: BulkCreate,
+	},
+	{
+		Type:    "GET",
+		Pattern: "/cards",
+		Handler: GetDashboardCards,
+	},
+	{
+		Type:    "GET",
+		Pattern: "/card/sets",
+		Handler: GetSets,
 	},
 }

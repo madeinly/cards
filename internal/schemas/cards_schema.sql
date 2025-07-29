@@ -142,3 +142,4 @@ CREATE TABLE cardForeignData (
 	type TEXT,
 	uuid TEXT
 )
+

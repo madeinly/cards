@@ -39,6 +39,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getCardStockByIdStmt, err = db.PrepareContext(ctx, getCardStockById); err != nil {
 		return nil, fmt.Errorf("error preparing query GetCardStockById: %w", err)
 	}
+	if q.getCardsWithPriceStmt, err = db.PrepareContext(ctx, getCardsWithPrice); err != nil {
+		return nil, fmt.Errorf("error preparing query GetCardsWithPrice: %w", err)
+	}
 	if q.getPriceStmt, err = db.PrepareContext(ctx, getPrice); err != nil {
 		return nil, fmt.Errorf("error preparing query GetPrice: %w", err)
 	}
@@ -73,6 +76,11 @@ func (q *Queries) Close() error {
 	if q.getCardStockByIdStmt != nil {
 		if cerr := q.getCardStockByIdStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getCardStockByIdStmt: %w", cerr)
+		}
+	}
+	if q.getCardsWithPriceStmt != nil {
+		if cerr := q.getCardsWithPriceStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getCardsWithPriceStmt: %w", cerr)
 		}
 	}
 	if q.getPriceStmt != nil {
@@ -129,6 +137,7 @@ type Queries struct {
 	getCardStmt              *sql.Stmt
 	getCardHasVendorByIdStmt *sql.Stmt
 	getCardStockByIdStmt     *sql.Stmt
+	getCardsWithPriceStmt    *sql.Stmt
 	getPriceStmt             *sql.Stmt
 	updateCardStockStmt      *sql.Stmt
 }
@@ -142,6 +151,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		getCardStmt:              q.getCardStmt,
 		getCardHasVendorByIdStmt: q.getCardHasVendorByIdStmt,
 		getCardStockByIdStmt:     q.getCardStockByIdStmt,
+		getCardsWithPriceStmt:    q.getCardsWithPriceStmt,
 		getPriceStmt:             q.getPriceStmt,
 		updateCardStockStmt:      q.updateCardStockStmt,
 	}

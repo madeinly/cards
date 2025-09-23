@@ -1,33 +1,35 @@
 package http
 
 import (
-	coreModels "github.com/madeinly/core/models"
+	"net/http"
+
+	"github.com/madeinly/core"
 )
 
-var Routes = []coreModels.Route{
+var Routes = []core.Route{
 	{
 		Type:    "GET",
 		Pattern: "/card",
-		Handler: GetCard,
+		Handler: http.HandlerFunc(GetCard),
 	},
 	{
 		Type:    "POST",
 		Pattern: "/card",
-		Handler: PostCreateCard,
+		Handler: http.HandlerFunc(PostCreateCard),
 	},
 	{
 		Type:    "POST",
 		Pattern: "/card/bulk",
-		Handler: BulkCreate,
+		Handler: http.HandlerFunc(BulkCreate),
 	},
 	{
 		Type:    "GET",
 		Pattern: "/cards",
-		Handler: GetDashboardCards,
+		Handler: http.HandlerFunc(GetDashboardCards),
 	},
 	{
 		Type:    "GET",
 		Pattern: "/card/sets",
-		Handler: GetSets,
+		Handler: http.HandlerFunc(GetSets),
 	},
 }

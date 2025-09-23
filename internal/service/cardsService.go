@@ -162,6 +162,8 @@ func RegisterCard(ctx context.Context, params RegisterCardParams) error {
 
 func RegisterBulk(ctx context.Context, file multipart.File, header *multipart.FileHeader) error {
 	// 1. save the file (your existing code)
+
+	fmt.Println("started bulk")
 	importFolderPath := card.ImportsPath()
 	now := time.Now()
 	fileName := now.Format("2006-01-02_15-04-05") + ".csv"
@@ -184,6 +186,8 @@ func RegisterBulk(ctx context.Context, file multipart.File, header *multipart.Fi
 	}
 
 	// 2. re-open for reading & parse CSV
+	fmt.Println("started reading and parsing")
+
 	f, err := os.Open(importFilePath)
 	if err != nil {
 		return err

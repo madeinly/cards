@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS cards (
-    id          TEXT NOT NULL,
+    id          TEXT NOT NULL, -- este id es mtgjson id 
     name_en     TEXT NOT NULL,
     name_es     TEXT NOT NULL,
     sku         TEXT NOT NULL UNIQUE,

@@ -9,20 +9,20 @@ import (
 
 	"github.com/madeinly/cards/internal/card"
 	"github.com/madeinly/cards/internal/service"
-	"github.com/madeinly/core/validation"
+	"github.com/madeinly/core"
 )
 
 func GetCard(w http.ResponseWriter, r *http.Request) {
 
-	bag := validation.New()
+	bag := core.Validate()
 
 	cardID := r.URL.Query().Get("card_id")
 	cardFinish := r.URL.Query().Get("card_finish")
 	cardLanguage := r.URL.Query().Get("card_language")
 
-	validation.Validate(bag, cardID, card.IdRules)
-	validation.Validate(bag, cardLanguage, card.LanguageRules)
-	validation.Validate(bag, cardFinish, card.FinishRules)
+	bag.Validate(cardID, card.IdRules)
+	bag.Validate(cardLanguage, card.LanguageRules)
+	bag.Validate(cardFinish, card.FinishRules)
 
 	if bag.HasErrors() {
 		_ = bag.WriteHTTP(w)
@@ -52,7 +52,7 @@ func GetCard(w http.ResponseWriter, r *http.Request) {
 
 func PostCreateCard(w http.ResponseWriter, r *http.Request) {
 
-	bag := validation.New()
+	bag := core.Validate()
 
 	err := r.ParseForm()
 
@@ -68,12 +68,12 @@ func PostCreateCard(w http.ResponseWriter, r *http.Request) {
 	stockSTR := r.PostFormValue("card_stock")
 	visibility := r.PostFormValue("card_visibility")
 
-	validation.Validate(bag, cardId, card.IdRules)
-	validation.Validate(bag, language, card.LanguageRules)
-	validation.Validate(bag, finish, card.FinishRules)
-	validation.Validate(bag, vendor, card.VendorRules)
-	validation.Validate(bag, stockSTR, card.StockRules)
-	validation.Validate(bag, visibility, card.VisibilityRules)
+	bag.Validate(cardId, card.IdRules)
+	bag.Validate(language, card.LanguageRules)
+	bag.Validate(finish, card.FinishRules)
+	bag.Validate(vendor, card.VendorRules)
+	bag.Validate(stockSTR, card.StockRules)
+	bag.Validate(visibility, card.VisibilityRules)
 
 	if bag.HasErrors() {
 		_ = bag.WriteHTTP(w)
@@ -154,10 +154,10 @@ func GetDashboardCards(w http.ResponseWriter, r *http.Request) {
 	cardPage := r.URL.Query().Get("card_page")
 	cardLimit := r.URL.Query().Get("card_limit")
 
-	bag := validation.New()
+	bag := core.Validate()
 
-	validation.Validate(bag, setCode, card.SetCodeRules)
-	validation.Validate(bag, cardName, card.CardNameRules)
+	bag.Validate(setCode, card.SetCodeRules)
+	bag.Validate(cardName, card.CardNameRules)
 
 	if bag.HasErrors() {
 		_ = bag.WriteHTTP(w)

@@ -7,34 +7,18 @@ import (
 	"net/http"
 	"os"
 	"path"
-	"path/filepath"
+
+	"github.com/madeinly/core"
 )
-
-// returns the folder path of the bin (probably should be in core)
-func MadeinlyPath() (string, error) {
-
-	binPath, err := os.Executable()
-
-	if err != nil {
-		return "", err
-	}
-
-	return filepath.Dir(binPath), nil
-
-}
 
 // makes sure that the cards folder exist and if not created or return error
 func CardsPath() (string, error) {
 
-	madeinlyPath, err := MadeinlyPath()
-
-	if err != nil {
-		return "", err
-	}
+	madeinlyPath := core.BinPath()
 
 	cardsFolderPath := path.Join(madeinlyPath, "cards")
 
-	_, err = os.Stat(cardsFolderPath)
+	_, err := os.Stat(cardsFolderPath)
 
 	if err != nil {
 		if os.IsNotExist(err) {

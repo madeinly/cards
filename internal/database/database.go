@@ -28,6 +28,7 @@ func InitCardsDB() (*sql.DB, error) {
 		dbPath := path.Join(cardsPath, "mtgDB.sqlite")
 
 		cardsDB, initErr = sql.Open("sqlite", fmt.Sprintf("file:%s?mode=ro&immutable=1", dbPath))
+
 		if initErr != nil {
 			return
 		}

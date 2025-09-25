@@ -1,4 +1,4 @@
-package database
+package features
 
 import (
 	"database/sql"

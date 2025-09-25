@@ -1,4 +1,4 @@
-package service
+package flows
 
 import (
 	"database/sql"
@@ -11,7 +11,7 @@ import (
 	_ "modernc.org/sqlite"
 
 	"github.com/madeinly/cards/internal/card"
-	"github.com/madeinly/cards/internal/database"
+	"github.com/madeinly/cards/internal/features"
 )
 
 func UpdateCardsDB() error {
@@ -43,7 +43,7 @@ func UpdateCardsDB() error {
 		return fmt.Errorf("failed to set permissions: %w", err)
 	}
 
-	db, _ := database.GetCardsDB()
+	db, _ := features.GetCardsDB()
 
 	var dbWasInUse bool
 
@@ -62,7 +62,7 @@ func UpdateCardsDB() error {
 	}
 
 	if dbWasInUse {
-		database.InitCardsDB()
+		features.InitCardsDB()
 	}
 
 	return nil

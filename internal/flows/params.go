@@ -1,4 +1,4 @@
-package service
+package flows
 
 type RegisterCardParams struct {
 	ID         string `json:"scryfall_id"`

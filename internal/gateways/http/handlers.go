@@ -8,7 +8,7 @@ import (
 	"strconv"
 
 	"github.com/madeinly/cards/internal/card"
-	"github.com/madeinly/cards/internal/service"
+	"github.com/madeinly/cards/internal/flows"
 	"github.com/madeinly/core"
 )
 
@@ -29,7 +29,7 @@ func GetCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	card, err := service.GetCardFromID(r.Context(), cardID, cardFinish, cardLanguage)
+	card, err := flows.GetCardFromID(r.Context(), cardID, cardFinish, cardLanguage)
 
 	if card.ID == "" {
 		fmt.Println(err.Error())
@@ -89,7 +89,7 @@ func PostCreateCard(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	err = service.RegisterCard(ctx, service.RegisterCardParams{
+	err = flows.RegisterCard(ctx, flows.RegisterCardParams{
 		ID:         cardId,
 		Vendor:     vendor,
 		Language:   language,
@@ -135,7 +135,7 @@ func BulkCreate(w http.ResponseWriter, r *http.Request) {
 
 	defer file.Close()
 
-	err = service.RegisterBulk(ctx, file, header)
+	err = flows.RegisterBulk(ctx, file, header)
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -166,7 +166,7 @@ func GetDashboardCards(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	cards, err := service.GetDashboardCards(ctx, service.GetDashboardCardsParams{
+	cards, err := flows.GetDashboardCards(ctx, flows.GetDashboardCardsParams{
 		SetCode:  setCode,
 		CardName: cardName,
 		Page:     cardPage,
@@ -188,7 +188,7 @@ func GetDashboardCards(w http.ResponseWriter, r *http.Request) {
 func GetSets(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
-	sets, err := service.GetSets(ctx)
+	sets, err := flows.GetSets(ctx)
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

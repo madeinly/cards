@@ -1,4 +1,4 @@
-package service
+package flows
 
 import (
 	"context"
@@ -15,15 +15,15 @@ import (
 	"time"
 
 	"github.com/madeinly/cards/internal/card"
-	"github.com/madeinly/cards/internal/database"
-	appDB "github.com/madeinly/cards/internal/sqlc/app"
-	mtgDB "github.com/madeinly/cards/internal/sqlc/cards"
+	appDB "github.com/madeinly/cards/internal/drivers/sqlite/sqlc/app"
+	mtgDB "github.com/madeinly/cards/internal/drivers/sqlite/sqlc/cards"
+	"github.com/madeinly/cards/internal/features"
 	"github.com/madeinly/core"
 )
 
 func GetCardFromID(ctx context.Context, cardScryFallID string, finish string, language string) (card.Card, error) {
 
-	cardsDB, err := database.GetCardsDB()
+	cardsDB, err := features.GetCardsDB()
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -319,7 +319,7 @@ func RegisterCardTx(ctx context.Context, tx *sql.Tx, params RegisterCardParams) 
 
 func GetCardFromIDTx(ctx context.Context, tx *sql.Tx, cardScryFallID string, finish string, language string) (card.Card, error) {
 
-	cardsDB, err := database.GetCardsDB()
+	cardsDB, err := features.GetCardsDB()
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -442,7 +442,7 @@ func GetDashboardCards(ctx context.Context, params GetDashboardCardsParams) ([]c
 
 func GetSets(ctx context.Context) ([]card.Set, error) {
 
-	cardsDB, err := database.GetCardsDB()
+	cardsDB, err := features.GetCardsDB()
 
 	if err != nil {
 		fmt.Println(err.Error())

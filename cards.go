@@ -4,13 +4,13 @@ import (
 	_ "embed"
 	"fmt"
 
-	"github.com/madeinly/cards/internal/cmd"
-	"github.com/madeinly/cards/internal/http"
-	"github.com/madeinly/cards/internal/service"
+	"github.com/madeinly/cards/internal/flows"
+	"github.com/madeinly/cards/internal/gateways/cmd"
+	"github.com/madeinly/cards/internal/gateways/http"
 	"github.com/madeinly/core"
 )
 
-//go:embed internal/schemas/initial_schema.sql
+//go:embed internal/drivers/sqlite/queries/app/migration.sql
 var initialSchema string
 
 var migration = core.Migration{
@@ -31,14 +31,14 @@ func setupCards(params map[string]string) error {
 	var err error
 
 	fmt.Println("updating the cards database")
-	err = service.UpdateCardsDB()
+	err = flows.UpdateCardsDB()
 
 	if err != nil {
 		return err
 	}
 
 	fmt.Println("updatinf the card prices database")
-	err = service.InitCardPrices()
+	err = flows.InitCardPrices()
 
 	if err != nil {
 		return err

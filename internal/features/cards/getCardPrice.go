@@ -10,7 +10,7 @@ import (
 )
 
 // cardId is the uuid from mtgJson
-func GetCardPrice(ctx context.Context, cardId string, finish string) float64 {
+func GetCardPrice(ctx context.Context, cardId string, finish string) (float64, error) {
 
 	db := core.DB()
 
@@ -22,13 +22,13 @@ func GetCardPrice(ctx context.Context, cardId string, finish string) float64 {
 	})
 
 	if err != nil && errors.Is(err, sql.ErrNoRows) {
-		return 0
+		return 0, ErrCardPriceNotFound
 	}
 
 	if err != nil {
 		core.Fatal(err, "could not retrieve the price of the card")
 	}
 
-	return cardPrice
+	return cardPrice, nil
 
 }

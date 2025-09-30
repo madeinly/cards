@@ -26,7 +26,7 @@ func UpdateCardsDB() error {
 		return fmt.Errorf("download failed: %w", err)
 	}
 
-	tempDBPath := path.Join(cardsPath, "mtgDB.sqlite.tmp")
+	tempDBPath := path.Join(cardsPath, "mtgDB.sqlite")
 	if err := card.Ungz(gzPath, tempDBPath); err != nil {
 		return fmt.Errorf("extraction failed: %w", err)
 	}

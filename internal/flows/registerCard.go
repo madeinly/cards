@@ -22,7 +22,7 @@ type RegisterCardParams struct {
 
 func RegisterCard(ctx context.Context, params RegisterCardParams) error {
 
-	card := GetCardfromId(ctx, params.ID, params.Finish, params.Language)
+	card, _ := GetCardfromId(ctx, params.ID, params.Finish, params.Language)
 
 	db := core.DB()
 
@@ -63,7 +63,7 @@ func RegisterCard(ctx context.Context, params RegisterCardParams) error {
 	stock, _ := strconv.ParseInt(params.Stock, 10, 64)
 
 	err = qApp.CreateCard(ctx, appDB.CreateCardParams{
-		ID:         params.ID,
+		ID:         card.ID,
 		NameEn:     card.NameEN,
 		NameEs:     card.NameES,
 		Sku:        sku,
@@ -73,6 +73,8 @@ func RegisterCard(ctx context.Context, params RegisterCardParams) error {
 		ManaValue:  card.ManaValue,
 		Colors:     card.Colors,
 		Types:      card.Types,
+		Rarity:     card.Rarity,
+		Number:     card.Number,
 		Finish:     params.Finish,
 		HasVendor:  hasVendor,
 		Language:   params.Language,

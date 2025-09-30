@@ -63,18 +63,19 @@ func RegisterCardTx(ctx context.Context, tx *sql.Tx, params RegisterCardParams) 
 	}
 
 	err = qApp.CreateCard(ctx, appDB.CreateCardParams{
-		ID:        card.ID,
-		NameEn:    card.NameEN,
-		NameEs:    card.NameES,
-		Sku:       sku,
-		UrlImage:  card.ImageURL,
-		SetName:   card.SetName,
-		SetCode:   card.SetCode,
-		ManaValue: card.ManaValue,
-		// falta rarity y number
+		ID:         card.ID,
+		NameEn:     card.NameEN,
+		NameEs:     card.NameES,
+		Sku:        sku,
+		UrlImage:   card.ImageURL,
+		SetName:    card.SetName,
+		SetCode:    card.SetCode,
+		ManaValue:  card.ManaValue,
 		Colors:     card.Colors,
 		Types:      card.Types,
 		Finish:     params.Finish,
+		Rarity:     card.Rarity,
+		Number:     card.Number,
 		HasVendor:  hasVendor,
 		Language:   params.Language,
 		Visibility: params.Visibility,
@@ -135,18 +136,20 @@ func GetCardFromIDTx(ctx context.Context, tx *sql.Tx, cardScryFallID string, fin
 	}
 
 	return Card{
-		ID:        repoCard.Uuid,
-		NameEN:    repoCard.Name,
-		NameES:    nameES.String,
-		ImageURL:  cards.GetImageURL(cardScryFallID),
-		SetCode:   repoCard.Setcode,
-		SetName:   repoCard.Setname,
-		ManaValue: int64(repoCard.Manavalue),
-		Number:    repoCard.Number,
-		Rarity:    repoCard.Rarity,
-		Colors:    repoCard.Colors,
-		Types:     repoCard.Types,
-		Price:     price,
-		Stock:     stock,
+		CardBase: CardBase{
+			ID:        repoCard.Uuid,
+			NameEN:    repoCard.Name,
+			NameES:    nameES.String,
+			ImageURL:  cards.GetImageURL(cardScryFallID),
+			SetCode:   repoCard.Setcode,
+			SetName:   repoCard.Setname,
+			ManaValue: int64(repoCard.Manavalue),
+			Number:    repoCard.Number,
+			Rarity:    repoCard.Rarity,
+			Colors:    repoCard.Colors,
+			Types:     repoCard.Types,
+			Price:     price,
+			Stock:     stock,
+		},
 	}, nil
 }

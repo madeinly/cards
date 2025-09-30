@@ -1,6 +1,13 @@
 package flows
 
 type Card struct {
+	CardBase
+	Language  string `json:"card_language"`
+	Finish    string `json:"card_finish"`
+	HasVendor bool   `json:"card_HasVendor"`
+}
+
+type CardBase struct {
 	ID        string  `json:"card_id"`
 	NameEN    string  `json:"card_nameEn"`
 	NameES    string  `json:"card_nameES"`

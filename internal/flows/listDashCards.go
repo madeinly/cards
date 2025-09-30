@@ -16,7 +16,14 @@ type GetDashboardCardsParams struct {
 	Limit    string
 }
 
-func GetDashboardCards(ctx context.Context, params GetDashboardCardsParams) ([]Card, error) {
+type CardsPage struct {
+	Limit int64
+	Page  int64
+	Total int64
+	Cards []Card
+}
+
+func GetDashboardCards(ctx context.Context, params GetDashboardCardsParams) (CardsPage, error) {
 
 	db := core.DB()
 
@@ -24,12 +31,12 @@ func GetDashboardCards(ctx context.Context, params GetDashboardCardsParams) ([]C
 
 	page, err := strconv.ParseInt(params.Page, 10, 64)
 	if err != nil {
-		return nil, err
+		return CardsPage{}, err
 	}
 
 	limit, err := strconv.ParseInt(params.Limit, 10, 64)
 	if err != nil {
-		return nil, err
+		return CardsPage{}, err
 	}
 
 	offset := (page - 1) * limit
@@ -45,11 +52,11 @@ func GetDashboardCards(ctx context.Context, params GetDashboardCardsParams) ([]C
 
 	if err != nil && err == sql.ErrNoRows {
 
-		return []Card{}, nil
+		return CardsPage{}, nil
 	}
 
 	if err != nil {
-		return []Card{}, err
+		return CardsPage{}, err
 	}
 
 	var cards []Card
@@ -57,20 +64,32 @@ func GetDashboardCards(ctx context.Context, params GetDashboardCardsParams) ([]C
 	for _, repoCard := range repoCards {
 
 		cards = append(cards, Card{
-			ID:        repoCard.ID,
-			NameEN:    repoCard.NameEn,
-			NameES:    repoCard.NameEs,
-			ImageURL:  repoCard.UrlImage,
-			SetCode:   repoCard.SetCode,
-			SetName:   repoCard.SetName,
-			ManaValue: repoCard.ManaValue,
-			Colors:    repoCard.Colors,
-			Types:     repoCard.Types,
-			Price:     repoCard.Price,
-			Stock:     repoCard.Stock,
+			CardBase: CardBase{
+				ID:        repoCard.ID,
+				NameEN:    repoCard.NameEn,
+				NameES:    repoCard.NameEs,
+				ImageURL:  repoCard.UrlImage,
+				SetCode:   repoCard.SetCode,
+				SetName:   repoCard.SetName,
+				ManaValue: repoCard.ManaValue,
+				Colors:    repoCard.Colors,
+				Types:     repoCard.Types,
+				Number:    repoCard.Number,
+				Rarity:    repoCard.Rarity,
+				Price:     repoCard.Price,
+				Stock:     repoCard.Stock,
+			},
+			Language:  repoCard.Language,
+			Finish:    repoCard.Finish,
+			HasVendor: repoCard.HasVendor,
 		})
 
 	}
 
-	return cards, nil
+	return CardsPage{
+		Limit: limit,
+		Page:  page,
+		Cards: cards,
+		Total: int64(len(cards)),
+	}, nil
 }

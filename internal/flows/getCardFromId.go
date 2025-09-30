@@ -2,27 +2,32 @@ package flows
 
 import (
 	"context"
+	"errors"
 
 	"github.com/madeinly/cards/internal/features/cards"
 )
 
-func GetCardfromId(ctx context.Context, scryfallId string, finish string, language string) Card {
+func GetCardfromId(ctx context.Context, scryfallId string, finish string, language string) (CardBase, error) {
 
-	rawCard := cards.GetRawCard(ctx, scryfallId)
+	rawCard, err := cards.GetRawCard(ctx, scryfallId)
 
-	if rawCard.Uuid == "" {
-		return Card{}
+	if err != nil && errors.Is(err, cards.ErrCardNotFound) {
+		return CardBase{}, ErrResourceNotFound
 	}
 
 	nameEs := cards.GetEsName(ctx, rawCard.Uuid)
 
 	setName := cards.GetSetName(ctx, rawCard.Setcode)
 
-	cardPrice := cards.GetCardPrice(ctx, rawCard.Uuid, finish)
+	cardPrice, err := cards.GetCardPrice(ctx, rawCard.Uuid, finish)
+
+	if err != nil && errors.Is(err, cards.ErrCardPriceNotFound) {
+		return CardBase{}, ErrResourceNotFound
+	}
 
 	stock := cards.GetCardStock(ctx, rawCard.Uuid, language, finish)
 
-	return Card{
+	return CardBase{
 		ID:        rawCard.Uuid,
 		NameEN:    rawCard.Name,
 		NameES:    nameEs,
@@ -36,6 +41,6 @@ func GetCardfromId(ctx context.Context, scryfallId string, finish string, langua
 		Types:     rawCard.Types,
 		Price:     cardPrice,
 		Stock:     stock,
-	}
+	}, nil
 
 }

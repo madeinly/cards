@@ -2,6 +2,7 @@ package http
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/madeinly/cards/internal/card"
@@ -26,9 +27,9 @@ func GetCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	card := flows.GetCardfromId(r.Context(), cardID, cardFinish, cardLanguage)
+	card, err := flows.GetCardfromId(r.Context(), cardID, cardFinish, cardLanguage)
 
-	if card.ID == "" {
+	if err != nil && errors.Is(err, flows.ErrResourceNotFound) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}

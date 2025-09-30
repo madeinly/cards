@@ -24,7 +24,7 @@ uses scryfallID to retrieve mtgDB.GetCardRow:
 		Setname   string  `json:"setname"`
 	}
 */
-func GetRawCard(ctx context.Context, scryfallId string) mtgDB.GetCardRow {
+func GetRawCard(ctx context.Context, scryfallId string) (mtgDB.GetCardRow, error) {
 
 	cardsDB := features.GetCardsDB()
 
@@ -33,9 +33,9 @@ func GetRawCard(ctx context.Context, scryfallId string) mtgDB.GetCardRow {
 	repoCard, err := queryCards.GetCard(ctx, scryfallId)
 
 	if err != nil && errors.Is(err, sql.ErrNoRows) {
-		return mtgDB.GetCardRow{}
+		return mtgDB.GetCardRow{}, ErrCardNotFound
 	}
 
-	return repoCard
+	return repoCard, nil
 
 }

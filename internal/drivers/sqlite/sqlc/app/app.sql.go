@@ -43,6 +43,8 @@ INSERT INTO cards (
     mana_value,
     colors,
     types,
+    rarity,
+    number,
     finish,
     has_vendor,
     language,
@@ -52,8 +54,8 @@ INSERT INTO cards (
     stock
 ) VALUES (
     ?1, ?2, ?3, ?4, ?5, ?6, ?7,
-    ?8, ?9, ?10, ?11, ?12, ?13,
-    ?14, ?15, ?16, ?17
+    ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15,
+    ?16, ?17, ?18, ?19
 )
 `
 
@@ -68,6 +70,8 @@ type CreateCardParams struct {
 	ManaValue  int64          `json:"mana_value"`
 	Colors     string         `json:"colors"`
 	Types      string         `json:"types"`
+	Rarity     string         `json:"rarity"`
+	Number     string         `json:"number"`
 	Finish     string         `json:"finish"`
 	HasVendor  bool           `json:"has_vendor"`
 	Language   string         `json:"language"`
@@ -89,6 +93,8 @@ func (q *Queries) CreateCard(ctx context.Context, arg CreateCardParams) error {
 		arg.ManaValue,
 		arg.Colors,
 		arg.Types,
+		arg.Rarity,
+		arg.Number,
 		arg.Finish,
 		arg.HasVendor,
 		arg.Language,
@@ -101,7 +107,7 @@ func (q *Queries) CreateCard(ctx context.Context, arg CreateCardParams) error {
 }
 
 const getCard = `-- name: GetCard :one
-SELECT id, name_en, name_es, sku, url_image, set_name, set_code, mana_value, colors, types, finish, has_vendor, language, visibility, image_path, image_url, stock, created_at, updated_at
+SELECT id, name_en, name_es, sku, url_image, set_name, set_code, mana_value, colors, types, rarity, number, finish, has_vendor, language, visibility, image_path, image_url, stock, created_at, updated_at
 FROM cards
 WHERE id = ?1
 `
@@ -120,6 +126,8 @@ func (q *Queries) GetCard(ctx context.Context, id string) (Card, error) {
 		&i.ManaValue,
 		&i.Colors,
 		&i.Types,
+		&i.Rarity,
+		&i.Number,
 		&i.Finish,
 		&i.HasVendor,
 		&i.Language,
@@ -167,7 +175,7 @@ func (q *Queries) GetCardStockById(ctx context.Context, arg GetCardStockByIdPara
 
 const getCardsWithPrice = `-- name: GetCardsWithPrice :many
 SELECT
-    c.id, c.name_en, c.name_es, c.sku, c.url_image, c.set_name, c.set_code, c.mana_value, c.colors, c.types, c.finish, c.has_vendor, c.language, c.visibility, c.image_path, c.image_url, c.stock, c.created_at, c.updated_at,
+    c.id, c.name_en, c.name_es, c.sku, c.url_image, c.set_name, c.set_code, c.mana_value, c.colors, c.types, c.rarity, c.number, c.finish, c.has_vendor, c.language, c.visibility, c.image_path, c.image_url, c.stock, c.created_at, c.updated_at,
     p.price
 FROM
     cards AS c
@@ -200,6 +208,8 @@ type GetCardsWithPriceRow struct {
 	ManaValue  int64          `json:"mana_value"`
 	Colors     string         `json:"colors"`
 	Types      string         `json:"types"`
+	Rarity     string         `json:"rarity"`
+	Number     string         `json:"number"`
 	Finish     string         `json:"finish"`
 	HasVendor  bool           `json:"has_vendor"`
 	Language   string         `json:"language"`
@@ -237,6 +247,8 @@ func (q *Queries) GetCardsWithPrice(ctx context.Context, arg GetCardsWithPricePa
 			&i.ManaValue,
 			&i.Colors,
 			&i.Types,
+			&i.Rarity,
+			&i.Number,
 			&i.Finish,
 			&i.HasVendor,
 			&i.Language,

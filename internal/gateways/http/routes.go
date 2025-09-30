@@ -25,7 +25,7 @@ var Routes = []core.Route{
 	{
 		Type:    "GET",
 		Pattern: "/cards",
-		Handler: http.HandlerFunc(GetDashboardCards),
+		Handler: http.HandlerFunc(ListCards),
 	},
 	{
 		Type:    "GET",

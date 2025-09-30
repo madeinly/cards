@@ -11,7 +11,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/madeinly/cards/internal/card"
 	"github.com/madeinly/core"
 )
 
@@ -19,7 +18,7 @@ func RegisterBulk(ctx context.Context, file multipart.File, header *multipart.Fi
 	// 1. save the file (your existing code)
 
 	fmt.Println("started bulk")
-	importFolderPath := card.ImportsPath()
+	importFolderPath := core.FeaturePath("cards/imports")
 	now := time.Now()
 	fileName := now.Format("2006-01-02_15-04-05") + ".csv"
 	importFilePath := filepath.Join(importFolderPath, fileName)

@@ -39,11 +39,6 @@ func CreateCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
 	ctx := r.Context()
 
 	err = flows.RegisterCard(ctx, flows.RegisterCardParams{

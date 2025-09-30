@@ -3,12 +3,16 @@ package flows
 import (
 	"context"
 
-	"github.com/madeinly/cards/internal/card"
 	mtgDB "github.com/madeinly/cards/internal/drivers/sqlite/sqlc/cards"
 	"github.com/madeinly/cards/internal/features"
 )
 
-func GetSets(ctx context.Context) ([]card.Set, error) {
+type Set struct {
+	SetCode string `json:"card_setCode"`
+	SetName string `json:"card_setName"`
+}
+
+func GetSets(ctx context.Context) ([]Set, error) {
 
 	cardsDB := features.GetCardsDB()
 
@@ -20,10 +24,10 @@ func GetSets(ctx context.Context) ([]card.Set, error) {
 		return nil, err
 	}
 
-	var sets []card.Set
+	var sets []Set
 
 	for _, repoSet := range repoSets {
-		sets = append(sets, card.Set{
+		sets = append(sets, Set{
 			SetCode: repoSet.Code,
 			SetName: repoSet.Name,
 		})

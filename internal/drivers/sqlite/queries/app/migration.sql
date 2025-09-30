@@ -9,6 +9,8 @@ CREATE TABLE IF NOT EXISTS cards (
     mana_value  INTEGER NOT NULL,
     colors      TEXT NOT NULL,
     types       TEXT NOT NULL,
+    rarity      TEXT NOT NULL,
+    number      TEXT NOT NULL,
     finish      TEXT NOT NULL CHECK(finish IN ('foil', 'normal', 'etched')),
     has_vendor  BOOLEAN NOT NULL DEFAULT 0 CHECK(has_vendor IN (0, 1)),
     language    TEXT NOT NULL CHECK(language IN ('Spanish', 'English')),

@@ -11,16 +11,6 @@ import (
 	"github.com/madeinly/core"
 )
 
-func ImportsPath() string {
-
-	CardsPath := core.FeaturePath("cards")
-
-	importsPath := core.FeaturePath(path.Join(CardsPath, "imports"))
-
-	return importsPath
-
-}
-
 func DownLoadFile(url string, path string) error {
 
 	resp, err := http.Get(url)

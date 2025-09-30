@@ -19,6 +19,8 @@ type Card struct {
 	ManaValue  int64          `json:"mana_value"`
 	Colors     string         `json:"colors"`
 	Types      string         `json:"types"`
+	Rarity     string         `json:"rarity"`
+	Number     string         `json:"number"`
 	Finish     string         `json:"finish"`
 	HasVendor  bool           `json:"has_vendor"`
 	Language   string         `json:"language"`

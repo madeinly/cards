@@ -21,6 +21,8 @@ INSERT INTO cards (
     mana_value,
     colors,
     types,
+    rarity,
+    number,
     finish,
     has_vendor,
     language,
@@ -30,7 +32,7 @@ INSERT INTO cards (
     stock
 ) VALUES (
     @id, @name_en, @name_es, @sku, @url_image, @set_name, @set_code,
-    @mana_value, @colors, @types, @finish, @has_vendor, @language,
+    @mana_value, @colors, @types, @rarity, @number, @finish, @has_vendor, @language,
     @visibility, @image_path, @image_url, @stock
 );
 

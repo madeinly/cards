@@ -9,7 +9,7 @@ import (
 	"github.com/madeinly/core"
 )
 
-func GetDashboardCards(w http.ResponseWriter, r *http.Request) {
+func ListCards(w http.ResponseWriter, r *http.Request) {
 
 	setCode := r.URL.Query().Get("card_setCode")
 	cardName := r.URL.Query().Get("card_name")

@@ -1,12 +1,12 @@
 version: "2"
 sql:
   - engine: "sqlite"
-    schema: ["internal/schemas/initial_schema.sql"]
-    queries: "internal/queries/app/*.sql"
+    schema: ["internal/drivers/sqlite/queries/app/migration.sql"]
+    queries: "internal/drivers/sqlite/queries/app/app.sql"
     gen:
       go:
         package: "appDB"
-        out: "internal/sqlc/app"
+        out: "internal/drivers/sqlite/sqlc/app"
         overrides:
           - db_type: "boolean"
             go_type: "bool"
@@ -15,12 +15,12 @@ sql:
         emit_prepared_queries: true
 
   - engine: "sqlite"
-    schema: ["internal/schemas/cards_schema.sql"]
-    queries: "internal/queries/cards/*.sql"
+    schema: ["internal/drivers/sqlite/queries/cards/schema.sql"]
+    queries: "internal/drivers/sqlite/queries/cards/cards.sql"
     gen:
       go:
         package: "mtgDB"
-        out: "internal/sqlc/cards"
+        out: "internal/drivers/sqlite/sqlc/cards"
         overrides:
           - db_type: "boolean"
             go_type: "bool"

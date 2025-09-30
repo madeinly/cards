@@ -18,7 +18,7 @@ var migration = core.Migration{
 	Schema: initialSchema,
 }
 
-var Feature = core.FeaturePackage{
+var Feature = core.Mod{
 	Name:      "cards",
 	Migration: migration,
 	Setup:     setupCards,

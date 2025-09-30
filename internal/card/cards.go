@@ -11,55 +11,11 @@ import (
 	"github.com/madeinly/core"
 )
 
-// makes sure that the cards folder exist and if not created or return error
-func CardsPath() (string, error) {
-
-	madeinlyPath := core.BinPath()
-
-	cardsFolderPath := path.Join(madeinlyPath, "cards")
-
-	_, err := os.Stat(cardsFolderPath)
-
-	if err != nil {
-		if os.IsNotExist(err) {
-			err = os.MkdirAll(cardsFolderPath, 0755)
-			if err != nil {
-				return "", fmt.Errorf("failed to create directory: %w", err)
-			}
-		} else {
-			return "", fmt.Errorf("failed to check directory: %w", err)
-		}
-	}
-
-	return cardsFolderPath, nil
-}
-
 func ImportsPath() string {
 
-	CardsPath, err := CardsPath()
+	CardsPath := core.FeaturePath("cards")
 
-	if err != nil {
-		fmt.Println(err.Error())
-		panic(0)
-	}
-
-	importsPath := path.Join(CardsPath, "imports")
-
-	_, err = os.Stat(importsPath)
-
-	if err != nil && os.IsNotExist(err) {
-		err = os.MkdirAll(importsPath, 0755)
-
-		if err != nil {
-			panic(0)
-		}
-
-		return importsPath
-	}
-
-	if err != nil {
-		panic(0)
-	}
+	importsPath := core.FeaturePath(path.Join(CardsPath, "imports"))
 
 	return importsPath
 
@@ -130,15 +86,11 @@ func FetchHistoricPrices() error {
 
 	url := "https://mtgjson.com/api/v5/AllPrices.json.gz"
 
-	cardsPath, err := CardsPath()
-
-	if err != nil {
-		return err
-	}
+	cardsPath := core.FeaturePath("cards")
 
 	gzFile := path.Join(cardsPath, "AllPrices.json.gz")
 
-	err = DownLoadFile(url, gzFile)
+	err := DownLoadFile(url, gzFile)
 
 	if err != nil {
 		return err

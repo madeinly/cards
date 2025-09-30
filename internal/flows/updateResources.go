@@ -12,13 +12,11 @@ import (
 
 	"github.com/madeinly/cards/internal/card"
 	"github.com/madeinly/cards/internal/features"
+	"github.com/madeinly/core"
 )
 
 func UpdateCardsDB() error {
-	cardsPath, err := card.CardsPath()
-	if err != nil {
-		return fmt.Errorf("failed to get cards path: %w", err)
-	}
+	cardsPath := core.FeaturePath("cards")
 
 	mtgjsonURL := "https://mtgjson.com/api/v5/AllPrintings.sqlite.gz"
 	gzPath := path.Join(cardsPath, "AllPrintings.sqlite.gz.tmp")
@@ -43,7 +41,7 @@ func UpdateCardsDB() error {
 		return fmt.Errorf("failed to set permissions: %w", err)
 	}
 
-	db, _ := features.GetCardsDB()
+	db := features.GetCardsDB()
 
 	var dbWasInUse bool
 
@@ -93,7 +91,7 @@ func InitCardPrices() error {
 		return err
 	}
 
-	err = card.SetupPriceTable()
+	err = SetupPriceTable()
 
 	if err != nil {
 		return err

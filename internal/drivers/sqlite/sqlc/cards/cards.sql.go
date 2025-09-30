@@ -73,6 +73,19 @@ func (q *Queries) GetCardNameES(ctx context.Context, id sql.NullString) (sql.Nul
 	return name, err
 }
 
+const getSetName = `-- name: GetSetName :one
+SELECT name
+FROM sets
+WHERE code = ?1
+`
+
+func (q *Queries) GetSetName(ctx context.Context, setcode string) (string, error) {
+	row := q.queryRow(ctx, q.getSetNameStmt, getSetName, setcode)
+	var name string
+	err := row.Scan(&name)
+	return name, err
+}
+
 const getSets = `-- name: GetSets :many
 SELECT code, name
 FROM sets

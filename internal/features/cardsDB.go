@@ -6,7 +6,7 @@ import (
 	"path"
 	"sync"
 
-	"github.com/madeinly/cards/internal/card"
+	"github.com/madeinly/core"
 	_ "modernc.org/sqlite"
 )
 
@@ -19,11 +19,7 @@ func InitCardsDB() (*sql.DB, error) {
 	var initErr error
 
 	dbOnce.Do(func() {
-		cardsPath, err := card.CardsPath()
-		if err != nil {
-			initErr = err
-			return
-		}
+		cardsPath := core.FeaturePath("cards")
 
 		dbPath := path.Join(cardsPath, "mtgDB.sqlite")
 
@@ -46,16 +42,16 @@ func InitCardsDB() (*sql.DB, error) {
 	return cardsDB, initErr
 }
 
-func GetCardsDB() (*sql.DB, error) {
+func GetCardsDB() *sql.DB {
 	if cardsDB != nil {
-		return cardsDB, nil
+		return cardsDB
 	}
 
 	cardsDB, err := InitCardsDB()
 
 	if err != nil {
-		return nil, err
+		core.Fatal(err, "could not connect to cards database")
 	}
 
-	return cardsDB, nil
+	return cardsDB
 }

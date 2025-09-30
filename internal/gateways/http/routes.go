@@ -15,7 +15,7 @@ var Routes = []core.Route{
 	{
 		Type:    "POST",
 		Pattern: "/card",
-		Handler: http.HandlerFunc(PostCreateCard),
+		Handler: http.HandlerFunc(CreateCard),
 	},
 	{
 		Type:    "POST",

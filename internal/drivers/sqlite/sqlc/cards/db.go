@@ -30,6 +30,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getCardNameESStmt, err = db.PrepareContext(ctx, getCardNameES); err != nil {
 		return nil, fmt.Errorf("error preparing query GetCardNameES: %w", err)
 	}
+	if q.getSetNameStmt, err = db.PrepareContext(ctx, getSetName); err != nil {
+		return nil, fmt.Errorf("error preparing query GetSetName: %w", err)
+	}
 	if q.getSetsStmt, err = db.PrepareContext(ctx, getSets); err != nil {
 		return nil, fmt.Errorf("error preparing query GetSets: %w", err)
 	}
@@ -46,6 +49,11 @@ func (q *Queries) Close() error {
 	if q.getCardNameESStmt != nil {
 		if cerr := q.getCardNameESStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getCardNameESStmt: %w", cerr)
+		}
+	}
+	if q.getSetNameStmt != nil {
+		if cerr := q.getSetNameStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getSetNameStmt: %w", cerr)
 		}
 	}
 	if q.getSetsStmt != nil {
@@ -94,6 +102,7 @@ type Queries struct {
 	tx                *sql.Tx
 	getCardStmt       *sql.Stmt
 	getCardNameESStmt *sql.Stmt
+	getSetNameStmt    *sql.Stmt
 	getSetsStmt       *sql.Stmt
 }
 
@@ -103,6 +112,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		tx:                tx,
 		getCardStmt:       q.getCardStmt,
 		getCardNameESStmt: q.getCardNameESStmt,
+		getSetNameStmt:    q.getSetNameStmt,
 		getSetsStmt:       q.getSetsStmt,
 	}
 }

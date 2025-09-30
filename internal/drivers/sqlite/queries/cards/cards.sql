@@ -25,6 +25,12 @@ FROM cardForeignData
 WHERE uuid = @id AND language = "Spanish";
 
 
+-- name: GetSetName :one
+SELECT name
+FROM sets
+WHERE code = @setCode;
+
+
 -- name: GetSets :many
 SELECT code, name
 FROM sets

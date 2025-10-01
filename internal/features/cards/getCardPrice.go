@@ -18,7 +18,7 @@ func GetCardPrice(ctx context.Context, cardId string, finish string) (float64, e
 
 	cardPrice, err := queryApp.GetPrice(ctx, appDB.GetPriceParams{
 		CardID: cardId,
-		Finish: "normal",
+		Finish: finish,
 	})
 
 	if err != nil && errors.Is(err, sql.ErrNoRows) {

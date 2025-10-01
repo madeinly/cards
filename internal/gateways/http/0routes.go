@@ -32,4 +32,9 @@ var Routes = []core.Route{
 		Pattern: "/card/sets",
 		Handler: http.HandlerFunc(GetSets),
 	},
+	{
+		Type:    "PATCH",
+		Pattern: "/card",
+		Handler: http.HandlerFunc(UpdateCardStock),
+	},
 }

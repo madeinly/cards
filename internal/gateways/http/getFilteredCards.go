@@ -3,6 +3,7 @@ package http
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/madeinly/cards/internal/flows"
@@ -18,12 +19,15 @@ func GetFilteredCards(w http.ResponseWriter, r *http.Request) {
 	cardMv := r.URL.Query().Get("card_mv")
 	cardPriceMin := r.URL.Query().Get("card_priceMin")
 	cardPriceMax := r.URL.Query().Get("card_priceMax")
+	cardMatchType := r.URL.Query().Get("card_matchType")
 	cardColors := r.URL.Query().Get("card_colors")
-	cardEn := r.URL.Query().Has("card_en")
-	cardES := r.URL.Query().Has("card_es")
+	langEn := r.URL.Query().Has("card_langEn")
+	langES := r.URL.Query().Has("card_langEs")
 
 	limit := r.URL.Query().Get("limit")
 	page := r.URL.Query().Get("page")
+
+	fmt.Println("langEn value:", langEn)
 
 	// bag.Validate(cardID, card.IdRules)
 	// bag.Validate(cardLanguage, card.LanguageRules)
@@ -36,9 +40,10 @@ func GetFilteredCards(w http.ResponseWriter, r *http.Request) {
 		CardMv:       cardMv,
 		CardPriceMin: cardPriceMin,
 		CardPriceMax: cardPriceMax,
+		MatchType:    cardMatchType,
 		Colors:       cardColors,
-		CardEn:       cardEn,
-		CardES:       cardES,
+		CardEn:       langEn,
+		CardES:       langES,
 		Limit:        limit,
 		Page:         page,
 	})

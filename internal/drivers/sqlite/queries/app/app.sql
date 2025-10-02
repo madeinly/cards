@@ -88,8 +88,8 @@ OFFSET @offset;
 
 -- name: GetFilteredCards :many
 SELECT
-    c.name_en,
     c.id,
+    c.name_en,
     c.language,
     p.price,
     c.image_url
@@ -101,11 +101,12 @@ WHERE
     (@langEn = 0 OR c.language = 'English')
     AND (@langES = 0 OR c.language = 'Spanish')
     AND (@cardType = '' OR c.types = @cardType)
-    AND (@cardName = '' OR c.name_en = @cardName)
-    AND (@cardMv = '' OR c.mana_value = @cardMv)
+    AND (@cardName = '' OR c.name_en LIKE '%' || @cardName || '%')
+    AND (@cardMv = -1 OR c.mana_value = @cardMv)
     AND (@cardFinish = '' OR c.finish = @cardFinish)
     AND (@cardPriceMin = 0 OR p.price >= @cardPriceMin)
     AND (@cardPriceMax = 0 OR p.price <= @cardPriceMax)
-    -- AND (@colors = '' OR c.colors IN @colors)
+    AND (@matchType = 'loose' OR c.colors = @cardColor)
+    AND (@matchType = 'tight' OR c.colors LIKE '%' || @cardColor || '%')
 LIMIT  @limit
 OFFSET @offset;

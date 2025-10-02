@@ -275,8 +275,8 @@ func (q *Queries) GetCardsWithPrice(ctx context.Context, arg GetCardsWithPricePa
 
 const getFilteredCards = `-- name: GetFilteredCards :many
 SELECT
-    c.name_en,
     c.id,
+    c.name_en,
     c.language,
     p.price,
     c.image_url
@@ -288,14 +288,15 @@ WHERE
     (?1 = 0 OR c.language = 'English')
     AND (?2 = 0 OR c.language = 'Spanish')
     AND (?3 = '' OR c.types = ?3)
-    AND (?4 = '' OR c.name_en = ?4)
-    AND (?5 = '' OR c.mana_value = ?5)
+    AND (?4 = '' OR c.name_en LIKE '%' || ?4 || '%')
+    AND (?5 = -1 OR c.mana_value = ?5)
     AND (?6 = '' OR c.finish = ?6)
     AND (?7 = 0 OR p.price >= ?7)
     AND (?8 = 0 OR p.price <= ?8)
-    -- AND (@colors = '' OR c.colors IN @colors)
-LIMIT  ?10
-OFFSET ?9
+    AND (?9 = 'loose' OR c.colors = ?10)
+    AND (?9 = 'tight' OR c.colors LIKE '%' || ?10 || '%')
+LIMIT  ?12
+OFFSET ?11
 `
 
 type GetFilteredCardsParams struct {
@@ -307,13 +308,15 @@ type GetFilteredCardsParams struct {
 	CardFinish   interface{} `json:"cardFinish"`
 	CardPriceMin interface{} `json:"cardPriceMin"`
 	CardPriceMax interface{} `json:"cardPriceMax"`
+	MatchType    interface{} `json:"matchType"`
+	CardColor    string      `json:"cardColor"`
 	Offset       int64       `json:"offset"`
 	Limit        int64       `json:"limit"`
 }
 
 type GetFilteredCardsRow struct {
-	NameEn   string         `json:"name_en"`
 	ID       string         `json:"id"`
+	NameEn   string         `json:"name_en"`
 	Language string         `json:"language"`
 	Price    float64        `json:"price"`
 	ImageUrl sql.NullString `json:"image_url"`
@@ -329,6 +332,8 @@ func (q *Queries) GetFilteredCards(ctx context.Context, arg GetFilteredCardsPara
 		arg.CardFinish,
 		arg.CardPriceMin,
 		arg.CardPriceMax,
+		arg.MatchType,
+		arg.CardColor,
 		arg.Offset,
 		arg.Limit,
 	)
@@ -340,8 +345,8 @@ func (q *Queries) GetFilteredCards(ctx context.Context, arg GetFilteredCardsPara
 	for rows.Next() {
 		var i GetFilteredCardsRow
 		if err := rows.Scan(
-			&i.NameEn,
 			&i.ID,
+			&i.NameEn,
 			&i.Language,
 			&i.Price,
 			&i.ImageUrl,

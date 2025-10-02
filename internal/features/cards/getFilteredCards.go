@@ -15,10 +15,10 @@ type GetFilteredCardsParams struct {
 	CardName     string
 	CardType     string
 	CardFinish   string
-	CardLanguage string
-	CardMv       string
+	CardMv       int64
 	CardPriceMin int64
 	CardPriceMax int64
+	MatchType    string
 	Colors       string
 	LangEn       int64
 	LangEs       int64
@@ -41,9 +41,10 @@ func GetFilteredCards(ctx context.Context, params GetFilteredCardsParams) ([]app
 		CardFinish:   params.CardFinish,
 		CardPriceMin: params.CardPriceMin,
 		CardPriceMax: params.CardPriceMax,
-		// Colors:       params.Colors,
-		Offset: params.Offset,
-		Limit:  params.Limit,
+		MatchType:    params.MatchType,
+		CardColor:    params.Colors,
+		Offset:       params.Offset,
+		Limit:        params.Limit,
 	}
 
 	debugVal, _ := json.MarshalIndent(filteredParams, "", " ")

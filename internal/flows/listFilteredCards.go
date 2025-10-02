@@ -13,18 +13,19 @@ type ListFilteredCardsParams struct {
 	CardName     string
 	CardType     string
 	CardFinish   string
-	CardLanguage string
 	CardMv       string
 	CardPriceMax string
 	CardPriceMin string
 	CardEn       bool
 	CardES       bool
+	MatchType    string
 	Colors       string
 	Limit        string
 	Page         string
 }
 
 type CardIndex struct {
+	CardId       string  `json:"card_id"`
 	CardImage    string  `json:"card_image"`
 	CardPriceMin float64 `json:"card_priceMin"`
 	CardPriceMax float64 `json:"card_priceMax"`
@@ -43,8 +44,9 @@ func ListFilteredCards(ctx context.Context, params ListFilteredCardsParams) (Car
 
 	limit, _ := strconv.ParseInt(params.Limit, 10, 64)
 	page, _ := strconv.ParseInt(params.Page, 10, 64)
+	offset := limit * (page - 1)
 
-	offset := limit * page
+	cardMv, _ := strconv.ParseInt(params.CardMv, 10, 64)
 
 	cardPriceMin, _ := strconv.ParseInt(params.CardPriceMin, 10, 64)
 	cardPriceMax, _ := strconv.ParseInt(params.CardPriceMax, 10, 64)
@@ -59,13 +61,16 @@ func ListFilteredCards(ctx context.Context, params ListFilteredCardsParams) (Car
 		cardEs = 1
 	}
 
+	//ORDER OF COLORS IN MTGJSON: B, G, R, U, W
+
 	list, err := cards.GetFilteredCards(ctx, cards.GetFilteredCardsParams{
 		CardName:     params.CardName,
 		CardType:     params.CardType,
 		CardFinish:   params.CardFinish,
-		CardMv:       params.CardMv,
+		CardMv:       cardMv,
 		CardPriceMin: cardPriceMin,
 		CardPriceMax: cardPriceMax,
+		MatchType:    params.MatchType,
 		Colors:       params.Colors,
 		LangEn:       cardEn,
 		LangEs:       cardEs,
@@ -97,6 +102,7 @@ func ListFilteredCards(ctx context.Context, params ListFilteredCardsParams) (Car
 		idx, ok := cardList[item.NameEn]
 		if !ok {
 			idx = CardIndex{
+				CardId:       item.ID,
 				CardImage:    item.ImageUrl.String,
 				CardPriceMin: item.Price,
 				CardPriceMax: item.Price,

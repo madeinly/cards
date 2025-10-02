@@ -2,7 +2,6 @@ package cards
 
 import (
 	"context"
-	"errors"
 
 	appDB "github.com/madeinly/cards/internal/drivers/sqlite/sqlc/app"
 	"github.com/madeinly/core"
@@ -28,8 +27,8 @@ func UpdateCardStock(ctx context.Context, params UpdateCardStockParams) error {
 		Stock:    params.Stock,
 	})
 
-	if err != nil && errors.Is(err, ErrCardNotFound) {
-		return ErrCardNotFound
+	if err != nil {
+		return err
 	}
 
 	return nil

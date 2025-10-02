@@ -37,4 +37,14 @@ var Routes = []core.Route{
 		Pattern: "/card",
 		Handler: http.HandlerFunc(UpdateCardStock),
 	},
+	{
+		Type:    "GET",
+		Pattern: "/cards/available",
+		Handler: http.HandlerFunc(ListCardsAvailable),
+	},
+	{
+		Type:    "GET",
+		Pattern: "/cards/filtered",
+		Handler: http.HandlerFunc(GetFilteredCards),
+	},
 }

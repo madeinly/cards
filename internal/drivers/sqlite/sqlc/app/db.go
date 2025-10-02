@@ -42,8 +42,14 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getCardsWithPriceStmt, err = db.PrepareContext(ctx, getCardsWithPrice); err != nil {
 		return nil, fmt.Errorf("error preparing query GetCardsWithPrice: %w", err)
 	}
+	if q.getFilteredCardsStmt, err = db.PrepareContext(ctx, getFilteredCards); err != nil {
+		return nil, fmt.Errorf("error preparing query GetFilteredCards: %w", err)
+	}
 	if q.getPriceStmt, err = db.PrepareContext(ctx, getPrice); err != nil {
 		return nil, fmt.Errorf("error preparing query GetPrice: %w", err)
+	}
+	if q.listAvailableCardsStmt, err = db.PrepareContext(ctx, listAvailableCards); err != nil {
+		return nil, fmt.Errorf("error preparing query ListAvailableCards: %w", err)
 	}
 	if q.updateCardStockStmt, err = db.PrepareContext(ctx, updateCardStock); err != nil {
 		return nil, fmt.Errorf("error preparing query UpdateCardStock: %w", err)
@@ -83,9 +89,19 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getCardsWithPriceStmt: %w", cerr)
 		}
 	}
+	if q.getFilteredCardsStmt != nil {
+		if cerr := q.getFilteredCardsStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getFilteredCardsStmt: %w", cerr)
+		}
+	}
 	if q.getPriceStmt != nil {
 		if cerr := q.getPriceStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getPriceStmt: %w", cerr)
+		}
+	}
+	if q.listAvailableCardsStmt != nil {
+		if cerr := q.listAvailableCardsStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing listAvailableCardsStmt: %w", cerr)
 		}
 	}
 	if q.updateCardStockStmt != nil {
@@ -138,7 +154,9 @@ type Queries struct {
 	getCardHasVendorByIdStmt *sql.Stmt
 	getCardStockByIdStmt     *sql.Stmt
 	getCardsWithPriceStmt    *sql.Stmt
+	getFilteredCardsStmt     *sql.Stmt
 	getPriceStmt             *sql.Stmt
+	listAvailableCardsStmt   *sql.Stmt
 	updateCardStockStmt      *sql.Stmt
 }
 
@@ -152,7 +170,9 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		getCardHasVendorByIdStmt: q.getCardHasVendorByIdStmt,
 		getCardStockByIdStmt:     q.getCardStockByIdStmt,
 		getCardsWithPriceStmt:    q.getCardsWithPriceStmt,
+		getFilteredCardsStmt:     q.getFilteredCardsStmt,
 		getPriceStmt:             q.getPriceStmt,
+		listAvailableCardsStmt:   q.listAvailableCardsStmt,
 		updateCardStockStmt:      q.updateCardStockStmt,
 	}
 }

@@ -273,6 +273,92 @@ func (q *Queries) GetCardsWithPrice(ctx context.Context, arg GetCardsWithPricePa
 	return items, nil
 }
 
+const getFilteredCards = `-- name: GetFilteredCards :many
+SELECT
+    c.name_en,
+    c.id,
+    c.language,
+    p.price,
+    c.image_url
+FROM cards AS c
+JOIN cards_price AS p
+      ON p.card_id = c.id
+     AND p.finish  = c.finish
+WHERE
+    (?1 = 0 OR c.language = 'English')
+    AND (?2 = 0 OR c.language = 'Spanish')
+    AND (?3 = '' OR c.types = ?3)
+    AND (?4 = '' OR c.name_en = ?4)
+    AND (?5 = '' OR c.mana_value = ?5)
+    AND (?6 = '' OR c.finish = ?6)
+    AND (?7 = 0 OR p.price >= ?7)
+    AND (?8 = 0 OR p.price <= ?8)
+    -- AND (@colors = '' OR c.colors IN @colors)
+LIMIT  ?10
+OFFSET ?9
+`
+
+type GetFilteredCardsParams struct {
+	LangEn       interface{} `json:"langEn"`
+	LangES       interface{} `json:"langES"`
+	CardType     interface{} `json:"cardType"`
+	CardName     interface{} `json:"cardName"`
+	CardMv       interface{} `json:"cardMv"`
+	CardFinish   interface{} `json:"cardFinish"`
+	CardPriceMin interface{} `json:"cardPriceMin"`
+	CardPriceMax interface{} `json:"cardPriceMax"`
+	Offset       int64       `json:"offset"`
+	Limit        int64       `json:"limit"`
+}
+
+type GetFilteredCardsRow struct {
+	NameEn   string         `json:"name_en"`
+	ID       string         `json:"id"`
+	Language string         `json:"language"`
+	Price    float64        `json:"price"`
+	ImageUrl sql.NullString `json:"image_url"`
+}
+
+func (q *Queries) GetFilteredCards(ctx context.Context, arg GetFilteredCardsParams) ([]GetFilteredCardsRow, error) {
+	rows, err := q.query(ctx, q.getFilteredCardsStmt, getFilteredCards,
+		arg.LangEn,
+		arg.LangES,
+		arg.CardType,
+		arg.CardName,
+		arg.CardMv,
+		arg.CardFinish,
+		arg.CardPriceMin,
+		arg.CardPriceMax,
+		arg.Offset,
+		arg.Limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetFilteredCardsRow
+	for rows.Next() {
+		var i GetFilteredCardsRow
+		if err := rows.Scan(
+			&i.NameEn,
+			&i.ID,
+			&i.Language,
+			&i.Price,
+			&i.ImageUrl,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getPrice = `-- name: GetPrice :one
 SELECT price
 FROM cards_price
@@ -289,6 +375,53 @@ func (q *Queries) GetPrice(ctx context.Context, arg GetPriceParams) (float64, er
 	var price float64
 	err := row.Scan(&price)
 	return price, err
+}
+
+const listAvailableCards = `-- name: ListAvailableCards :many
+SELECT 
+    id, name_en, set_code, language, finish, stock
+FROM
+    cards
+WHERE name_en LIKE '%' || ?1 || '%'
+`
+
+type ListAvailableCardsRow struct {
+	ID       string `json:"id"`
+	NameEn   string `json:"name_en"`
+	SetCode  string `json:"set_code"`
+	Language string `json:"language"`
+	Finish   string `json:"finish"`
+	Stock    int64  `json:"stock"`
+}
+
+func (q *Queries) ListAvailableCards(ctx context.Context, name sql.NullString) ([]ListAvailableCardsRow, error) {
+	rows, err := q.query(ctx, q.listAvailableCardsStmt, listAvailableCards, name)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListAvailableCardsRow
+	for rows.Next() {
+		var i ListAvailableCardsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.NameEn,
+			&i.SetCode,
+			&i.Language,
+			&i.Finish,
+			&i.Stock,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const updateCardStock = `-- name: UpdateCardStock :exec

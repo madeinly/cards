@@ -62,6 +62,13 @@ SELECT EXISTS (
 );
 
 
+-- name: ListAvailableCards :many
+SELECT 
+    id, name_en, set_code, language, finish, stock
+FROM
+    cards
+WHERE name_en LIKE '%' || @name || '%';
+
 -- name: GetCardsWithPrice :many
 SELECT
     c.*,
@@ -75,5 +82,30 @@ JOIN
 WHERE
     (@set_code = '' OR c.set_code = @set_code)          
     AND (@name = '' OR c.name_en LIKE '%' || @name || '%')
+LIMIT  @limit
+OFFSET @offset;
+
+
+-- name: GetFilteredCards :many
+SELECT
+    c.name_en,
+    c.id,
+    c.language,
+    p.price,
+    c.image_url
+FROM cards AS c
+JOIN cards_price AS p
+      ON p.card_id = c.id
+     AND p.finish  = c.finish
+WHERE
+    (@langEn = 0 OR c.language = 'English')
+    AND (@langES = 0 OR c.language = 'Spanish')
+    AND (@cardType = '' OR c.types = @cardType)
+    AND (@cardName = '' OR c.name_en = @cardName)
+    AND (@cardMv = '' OR c.mana_value = @cardMv)
+    AND (@cardFinish = '' OR c.finish = @cardFinish)
+    AND (@cardPriceMin = 0 OR p.price >= @cardPriceMin)
+    AND (@cardPriceMax = 0 OR p.price <= @cardPriceMax)
+    -- AND (@colors = '' OR c.colors IN @colors)
 LIMIT  @limit
 OFFSET @offset;

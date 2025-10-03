@@ -19,7 +19,7 @@ func GetFilteredCards(w http.ResponseWriter, r *http.Request) {
 	cardMv := r.URL.Query().Get("card_mv")
 	cardPriceMin := r.URL.Query().Get("card_priceMin")
 	cardPriceMax := r.URL.Query().Get("card_priceMax")
-	cardMatchType := r.URL.Query().Get("card_matchType")
+	cardMatchType := r.URL.Query().Get("card_colorMatchType")
 	cardColors := r.URL.Query().Get("card_colors")
 	langEn := r.URL.Query().Has("card_langEn")
 	langES := r.URL.Query().Has("card_langEs")

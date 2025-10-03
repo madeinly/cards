@@ -279,7 +279,7 @@ SELECT
     c.name_en,
     c.language,
     p.price,
-    c.image_url
+    c.url_image
 FROM cards AS c
 JOIN cards_price AS p
       ON p.card_id = c.id
@@ -315,11 +315,11 @@ type GetFilteredCardsParams struct {
 }
 
 type GetFilteredCardsRow struct {
-	ID       string         `json:"id"`
-	NameEn   string         `json:"name_en"`
-	Language string         `json:"language"`
-	Price    float64        `json:"price"`
-	ImageUrl sql.NullString `json:"image_url"`
+	ID       string  `json:"id"`
+	NameEn   string  `json:"name_en"`
+	Language string  `json:"language"`
+	Price    float64 `json:"price"`
+	UrlImage string  `json:"url_image"`
 }
 
 func (q *Queries) GetFilteredCards(ctx context.Context, arg GetFilteredCardsParams) ([]GetFilteredCardsRow, error) {
@@ -349,7 +349,7 @@ func (q *Queries) GetFilteredCards(ctx context.Context, arg GetFilteredCardsPara
 			&i.NameEn,
 			&i.Language,
 			&i.Price,
-			&i.ImageUrl,
+			&i.UrlImage,
 		); err != nil {
 			return nil, err
 		}

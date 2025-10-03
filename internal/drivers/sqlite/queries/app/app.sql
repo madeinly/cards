@@ -92,7 +92,7 @@ SELECT
     c.name_en,
     c.language,
     p.price,
-    c.image_url
+    c.url_image
 FROM cards AS c
 JOIN cards_price AS p
       ON p.card_id = c.id

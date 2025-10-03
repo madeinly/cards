@@ -103,7 +103,7 @@ func ListFilteredCards(ctx context.Context, params ListFilteredCardsParams) (Car
 		if !ok {
 			idx = CardIndex{
 				CardId:       item.ID,
-				CardImage:    item.ImageUrl.String,
+				CardImage:    item.UrlImage,
 				CardPriceMin: item.Price,
 				CardPriceMax: item.Price,
 				IncludeEn:    item.Language == "English",

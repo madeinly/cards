@@ -26,7 +26,7 @@ type GetFilteredCardsParams struct {
 	Offset       int64
 }
 
-func GetFilteredCards(ctx context.Context, params GetFilteredCardsParams) ([]appDB.GetFilteredCardsRow, error) {
+func GetFilteredCards(ctx context.Context, params GetFilteredCardsParams) ([]appDB.GetFilteredCardsRow, int64, error) {
 
 	db := core.DB()
 
@@ -50,16 +50,31 @@ func GetFilteredCards(ctx context.Context, params GetFilteredCardsParams) ([]app
 	debugVal, _ := json.MarshalIndent(filteredParams, "", " ")
 	fmt.Println(string(debugVal))
 
-	list, err := queryApp.GetFilteredCards(ctx, filteredParams)
+	list, _ := queryApp.GetFilteredCards(ctx, filteredParams)
+
+	countParams := appDB.CountFilteredCardsParams{
+		CardType:     params.CardType,
+		CardName:     params.CardName,
+		LangEn:       params.LangEn,
+		LangES:       params.LangEs,
+		CardMv:       params.CardMv,
+		CardFinish:   params.CardFinish,
+		CardPriceMin: params.CardPriceMin,
+		CardPriceMax: params.CardPriceMax,
+		MatchType:    params.MatchType,
+		CardColor:    params.Colors,
+	}
+
+	cardCount, err := queryApp.CountFilteredCards(ctx, countParams)
 
 	if err != nil && errors.Is(err, sql.ErrNoRows) {
-		return nil, ErrCardNotFound
+		return nil, 0, ErrCardNotFound
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	return list, nil
+	return list, cardCount, nil
 
 }

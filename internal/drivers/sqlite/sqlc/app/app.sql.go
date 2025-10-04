@@ -31,6 +31,88 @@ func (q *Queries) CardExists(ctx context.Context, arg CardExistsParams) (int64, 
 	return column_1, err
 }
 
+const countCardsWithPrice = `-- name: CountCardsWithPrice :one
+SELECT
+    COUNT(c.id)
+FROM
+    cards AS c
+JOIN
+    cards_price AS p
+      ON p.card_id = c.id
+     AND p.finish  = c.finish
+WHERE
+    (?1 = '' OR c.set_code = ?1)          
+    AND (?2 = '' OR c.name_en LIKE '%' || ?2 || '%')
+`
+
+type CountCardsWithPriceParams struct {
+	SetCode interface{} `json:"set_code"`
+	Name    interface{} `json:"name"`
+}
+
+func (q *Queries) CountCardsWithPrice(ctx context.Context, arg CountCardsWithPriceParams) (int64, error) {
+	row := q.queryRow(ctx, q.countCardsWithPriceStmt, countCardsWithPrice, arg.SetCode, arg.Name)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countFilteredCards = `-- name: CountFilteredCards :one
+SELECT
+   COUNT( DISTINCT c.name_en)
+   
+FROM cards AS c
+JOIN cards_price AS p
+      ON p.card_id = c.id
+     AND p.finish  = c.finish
+WHERE
+    (?1 = '' OR c.name_en LIKE '%' || ?1 || '%')
+
+    AND (
+        (?2 = 0 AND ?3 = 0)        
+        OR (?2 = 1 AND c.language = 'English')
+        OR (?3 = 1 AND c.language = 'Spanish')
+    )
+    AND (?4 = '' OR c.types = ?4)
+    AND (?5 = -1 OR c.mana_value = ?5)
+    AND (?6 = '' OR c.finish = ?6)
+    AND (?7 = 0 OR p.price >= ?7)
+    AND (?8 = 0 OR p.price <= ?8)
+    AND (?9 = 'loose' OR ?10 = '' OR c.colors = ?10)
+    AND (?9 = 'tight' OR ?10 = '' OR c.colors LIKE '%' || ?10 || '%')
+`
+
+type CountFilteredCardsParams struct {
+	CardName     interface{} `json:"cardName"`
+	LangEn       interface{} `json:"langEn"`
+	LangES       interface{} `json:"langES"`
+	CardType     interface{} `json:"cardType"`
+	CardMv       interface{} `json:"cardMv"`
+	CardFinish   interface{} `json:"cardFinish"`
+	CardPriceMin interface{} `json:"cardPriceMin"`
+	CardPriceMax interface{} `json:"cardPriceMax"`
+	MatchType    interface{} `json:"matchType"`
+	CardColor    interface{} `json:"cardColor"`
+}
+
+func (q *Queries) CountFilteredCards(ctx context.Context, arg CountFilteredCardsParams) (int64, error) {
+	row := q.queryRow(ctx, q.countFilteredCardsStmt, countFilteredCards,
+		arg.CardName,
+		arg.LangEn,
+		arg.LangES,
+		arg.CardType,
+		arg.CardMv,
+		arg.CardFinish,
+		arg.CardPriceMin,
+		arg.CardPriceMax,
+		arg.MatchType,
+		arg.CardColor,
+	)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createCard = `-- name: CreateCard :exec
 INSERT INTO cards (
     id,
@@ -285,31 +367,37 @@ JOIN cards_price AS p
       ON p.card_id = c.id
      AND p.finish  = c.finish
 WHERE
-    (?1 = 0 OR c.language = 'English')
-    AND (?2 = 0 OR c.language = 'Spanish')
-    AND (?3 = '' OR c.types = ?3)
-    AND (?4 = '' OR c.name_en LIKE '%' || ?4 || '%')
+  
+    (?1 = '' OR c.name_en LIKE '%' || ?1 || '%')
+
+    AND (
+        (?2 = 0 AND ?3 = 0)         
+        OR (?2 = 1 AND c.language = 'English')
+        OR (?3 = 1 AND c.language = 'Spanish')
+    )
+
+    AND (?4 = '' OR c.types = ?4)
     AND (?5 = -1 OR c.mana_value = ?5)
     AND (?6 = '' OR c.finish = ?6)
     AND (?7 = 0 OR p.price >= ?7)
     AND (?8 = 0 OR p.price <= ?8)
-    AND (?9 = 'loose' OR c.colors = ?10)
-    AND (?9 = 'tight' OR c.colors LIKE '%' || ?10 || '%')
+    AND (?9 = 'loose' OR ?10 = '' OR c.colors = ?10)
+    AND (?9 = 'tight' OR ?10 = '' OR c.colors LIKE '%' || ?10 || '%')
 LIMIT  ?12
 OFFSET ?11
 `
 
 type GetFilteredCardsParams struct {
+	CardName     interface{} `json:"cardName"`
 	LangEn       interface{} `json:"langEn"`
 	LangES       interface{} `json:"langES"`
 	CardType     interface{} `json:"cardType"`
-	CardName     interface{} `json:"cardName"`
 	CardMv       interface{} `json:"cardMv"`
 	CardFinish   interface{} `json:"cardFinish"`
 	CardPriceMin interface{} `json:"cardPriceMin"`
 	CardPriceMax interface{} `json:"cardPriceMax"`
 	MatchType    interface{} `json:"matchType"`
-	CardColor    string      `json:"cardColor"`
+	CardColor    interface{} `json:"cardColor"`
 	Offset       int64       `json:"offset"`
 	Limit        int64       `json:"limit"`
 }
@@ -324,10 +412,10 @@ type GetFilteredCardsRow struct {
 
 func (q *Queries) GetFilteredCards(ctx context.Context, arg GetFilteredCardsParams) ([]GetFilteredCardsRow, error) {
 	rows, err := q.query(ctx, q.getFilteredCardsStmt, getFilteredCards,
+		arg.CardName,
 		arg.LangEn,
 		arg.LangES,
 		arg.CardType,
-		arg.CardName,
 		arg.CardMv,
 		arg.CardFinish,
 		arg.CardPriceMin,

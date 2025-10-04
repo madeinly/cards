@@ -39,7 +39,13 @@ func GetDashboardCards(ctx context.Context, params GetDashboardCardsParams) (Car
 		return CardsPage{}, err
 	}
 
-	offset := (page - 1) * limit
+	var offset int64
+
+	if page == 1 {
+		offset = 0
+	} else {
+		offset = (page - 1) * limit
+	}
 
 	getCardsParams := appDB.GetCardsWithPriceParams{
 		SetCode: params.SetCode,
@@ -52,12 +58,19 @@ func GetDashboardCards(ctx context.Context, params GetDashboardCardsParams) (Car
 
 	if err != nil && err == sql.ErrNoRows {
 
-		return CardsPage{}, nil
+		return CardsPage{}, ErrResourceNotFound
 	}
 
 	if err != nil {
 		return CardsPage{}, err
 	}
+
+	cardsCount, _ := qApp.CountCardsWithPrice(ctx, appDB.CountCardsWithPriceParams{
+		SetCode: params.SetCode,
+		Name:    params.CardName,
+	})
+
+	totalPages := (cardsCount + limit - 1) / limit //ceiling trick
 
 	var cards []Card
 
@@ -87,9 +100,8 @@ func GetDashboardCards(ctx context.Context, params GetDashboardCardsParams) (Car
 	}
 
 	return CardsPage{
-		Limit: limit,
-		Page:  page,
+		Page:  totalPages,
 		Cards: cards,
-		Total: int64(len(cards)),
+		Total: cardsCount,
 	}, nil
 }

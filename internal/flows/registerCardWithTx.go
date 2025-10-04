@@ -140,7 +140,7 @@ func GetCardFromIDTx(ctx context.Context, tx *sql.Tx, cardScryFallID string, fin
 			ID:        repoCard.Uuid,
 			NameEN:    repoCard.Name,
 			NameES:    nameES.String,
-			ImageURL:  cards.GetImageURL(cardScryFallID),
+			ImageURL:  cards.BuildImageURL(cardScryFallID),
 			SetCode:   repoCard.Setcode,
 			SetName:   repoCard.Setname,
 			ManaValue: int64(repoCard.Manavalue),

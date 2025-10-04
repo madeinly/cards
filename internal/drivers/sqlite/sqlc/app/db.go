@@ -27,6 +27,12 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.cardExistsStmt, err = db.PrepareContext(ctx, cardExists); err != nil {
 		return nil, fmt.Errorf("error preparing query CardExists: %w", err)
 	}
+	if q.countCardsWithPriceStmt, err = db.PrepareContext(ctx, countCardsWithPrice); err != nil {
+		return nil, fmt.Errorf("error preparing query CountCardsWithPrice: %w", err)
+	}
+	if q.countFilteredCardsStmt, err = db.PrepareContext(ctx, countFilteredCards); err != nil {
+		return nil, fmt.Errorf("error preparing query CountFilteredCards: %w", err)
+	}
 	if q.createCardStmt, err = db.PrepareContext(ctx, createCard); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateCard: %w", err)
 	}
@@ -62,6 +68,16 @@ func (q *Queries) Close() error {
 	if q.cardExistsStmt != nil {
 		if cerr := q.cardExistsStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing cardExistsStmt: %w", cerr)
+		}
+	}
+	if q.countCardsWithPriceStmt != nil {
+		if cerr := q.countCardsWithPriceStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing countCardsWithPriceStmt: %w", cerr)
+		}
+	}
+	if q.countFilteredCardsStmt != nil {
+		if cerr := q.countFilteredCardsStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing countFilteredCardsStmt: %w", cerr)
 		}
 	}
 	if q.createCardStmt != nil {
@@ -149,6 +165,8 @@ type Queries struct {
 	db                       DBTX
 	tx                       *sql.Tx
 	cardExistsStmt           *sql.Stmt
+	countCardsWithPriceStmt  *sql.Stmt
+	countFilteredCardsStmt   *sql.Stmt
 	createCardStmt           *sql.Stmt
 	getCardStmt              *sql.Stmt
 	getCardHasVendorByIdStmt *sql.Stmt
@@ -165,6 +183,8 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		db:                       tx,
 		tx:                       tx,
 		cardExistsStmt:           q.cardExistsStmt,
+		countCardsWithPriceStmt:  q.countCardsWithPriceStmt,
+		countFilteredCardsStmt:   q.countFilteredCardsStmt,
 		createCardStmt:           q.createCardStmt,
 		getCardStmt:              q.getCardStmt,
 		getCardHasVendorByIdStmt: q.getCardHasVendorByIdStmt,

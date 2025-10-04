@@ -85,6 +85,19 @@ WHERE
 LIMIT  @limit
 OFFSET @offset;
 
+-- name: CountCardsWithPrice :one
+SELECT
+    COUNT(c.id)
+FROM
+    cards AS c
+JOIN
+    cards_price AS p
+      ON p.card_id = c.id
+     AND p.finish  = c.finish
+WHERE
+    (@set_code = '' OR c.set_code = @set_code)          
+    AND (@name = '' OR c.name_en LIKE '%' || @name || '%');
+
 
 -- name: GetFilteredCards :many
 SELECT
@@ -98,15 +111,45 @@ JOIN cards_price AS p
       ON p.card_id = c.id
      AND p.finish  = c.finish
 WHERE
-    (@langEn = 0 OR c.language = 'English')
-    AND (@langES = 0 OR c.language = 'Spanish')
+  
+    (@cardName = '' OR c.name_en LIKE '%' || @cardName || '%')
+
+    AND (
+        (@langEn = 0 AND @langES = 0)         
+        OR (@langEn = 1 AND c.language = 'English')
+        OR (@langES = 1 AND c.language = 'Spanish')
+    )
+
     AND (@cardType = '' OR c.types = @cardType)
-    AND (@cardName = '' OR c.name_en LIKE '%' || @cardName || '%')
     AND (@cardMv = -1 OR c.mana_value = @cardMv)
     AND (@cardFinish = '' OR c.finish = @cardFinish)
     AND (@cardPriceMin = 0 OR p.price >= @cardPriceMin)
     AND (@cardPriceMax = 0 OR p.price <= @cardPriceMax)
-    AND (@matchType = 'loose' OR c.colors = @cardColor)
-    AND (@matchType = 'tight' OR c.colors LIKE '%' || @cardColor || '%')
+    AND (@matchType = 'loose' OR @cardColor = '' OR c.colors = @cardColor)
+    AND (@matchType = 'tight' OR @cardColor = '' OR c.colors LIKE '%' || @cardColor || '%')
 LIMIT  @limit
 OFFSET @offset;
+
+-- name: CountFilteredCards :one
+SELECT
+   COUNT( DISTINCT c.name_en)
+   
+FROM cards AS c
+JOIN cards_price AS p
+      ON p.card_id = c.id
+     AND p.finish  = c.finish
+WHERE
+    (@cardName = '' OR c.name_en LIKE '%' || @cardName || '%')
+
+    AND (
+        (@langEn = 0 AND @langES = 0)        
+        OR (@langEn = 1 AND c.language = 'English')
+        OR (@langES = 1 AND c.language = 'Spanish')
+    )
+    AND (@cardType = '' OR c.types = @cardType)
+    AND (@cardMv = -1 OR c.mana_value = @cardMv)
+    AND (@cardFinish = '' OR c.finish = @cardFinish)
+    AND (@cardPriceMin = 0 OR p.price >= @cardPriceMin)
+    AND (@cardPriceMax = 0 OR p.price <= @cardPriceMax)
+    AND (@matchType = 'loose' OR @cardColor = '' OR c.colors = @cardColor)
+    AND (@matchType = 'tight' OR @cardColor = '' OR c.colors LIKE '%' || @cardColor || '%');

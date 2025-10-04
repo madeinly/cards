@@ -1,4 +1,4 @@
-package cards
+package features
 
 import (
 	"context"
@@ -6,7 +6,6 @@ import (
 	"errors"
 
 	mtgDB "github.com/madeinly/cards/internal/drivers/sqlite/sqlc/cards"
-	"github.com/madeinly/cards/internal/features"
 )
 
 /*
@@ -26,7 +25,7 @@ uses scryfallID to retrieve mtgDB.GetCardRow:
 */
 func GetRawCard(ctx context.Context, scryfallId string) (mtgDB.GetCardRow, error) {
 
-	cardsDB := features.GetCardsDB()
+	cardsDB := GetCardsDB()
 
 	queryCards := mtgDB.New(cardsDB)
 

@@ -1,4 +1,4 @@
-package cards
+package features
 
 import (
 	"context"
@@ -6,14 +6,13 @@ import (
 	"errors"
 
 	mtgDB "github.com/madeinly/cards/internal/drivers/sqlite/sqlc/cards"
-	"github.com/madeinly/cards/internal/features"
 	"github.com/madeinly/core"
 )
 
 // CardId is the uuid from mtgJson
 func GetEsName(ctx context.Context, cardId string) string {
 
-	cardsDB := features.GetCardsDB()
+	cardsDB := GetCardsDB()
 
 	queryCards := mtgDB.New(cardsDB)
 

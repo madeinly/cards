@@ -10,7 +10,6 @@ import (
 	appDB "github.com/madeinly/cards/internal/drivers/sqlite/sqlc/app"
 	mtgDB "github.com/madeinly/cards/internal/drivers/sqlite/sqlc/cards"
 	"github.com/madeinly/cards/internal/features"
-	"github.com/madeinly/cards/internal/features/cards"
 )
 
 func RegisterCardTx(ctx context.Context, tx *sql.Tx, params RegisterCardParams) error {
@@ -140,7 +139,7 @@ func GetCardFromIDTx(ctx context.Context, tx *sql.Tx, cardScryFallID string, fin
 			ID:        repoCard.Uuid,
 			NameEN:    repoCard.Name,
 			NameES:    nameES.String,
-			ImageURL:  cards.BuildImageURL(cardScryFallID),
+			ImageURL:  features.BuildImageURL(cardScryFallID),
 			SetCode:   repoCard.Setcode,
 			SetName:   repoCard.Setname,
 			ManaValue: int64(repoCard.Manavalue),

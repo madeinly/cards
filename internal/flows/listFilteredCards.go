@@ -8,7 +8,7 @@ import (
 	"strconv"
 
 	appDB "github.com/madeinly/cards/internal/drivers/sqlite/sqlc/app"
-	"github.com/madeinly/cards/internal/features/cards"
+	"github.com/madeinly/cards/internal/features"
 )
 
 type ListFilteredCardsParams struct {
@@ -79,7 +79,7 @@ func ListFilteredCards(ctx context.Context, params ListFilteredCardsParams) (Car
 
 	//ORDER OF COLORS IN MTGJSON: B, G, R, U, W
 
-	list, cardCount, err := cards.GetFilteredCards(ctx, cards.GetFilteredCardsParams{
+	list, cardCount, err := features.GetFilteredCards(ctx, features.GetFilteredCardsParams{
 		CardName:     params.CardName,
 		CardType:     params.CardType,
 		CardFinish:   params.CardFinish,
@@ -94,7 +94,7 @@ func ListFilteredCards(ctx context.Context, params ListFilteredCardsParams) (Car
 		Offset:       offset,
 	})
 
-	if err != nil && errors.Is(err, cards.ErrCardNotFound) {
+	if err != nil && errors.Is(err, features.ErrCardNotFound) {
 		return CardIndexPage{}, ErrResourceNotFound
 	}
 

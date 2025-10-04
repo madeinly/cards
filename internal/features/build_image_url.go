@@ -1,4 +1,4 @@
-package cards
+package features
 
 import "net/url"
 

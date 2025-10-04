@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/madeinly/cards/internal/features/cards"
+	"github.com/madeinly/cards/internal/features"
 )
 
 type MinCard struct {
@@ -18,9 +18,9 @@ type MinCard struct {
 
 func ListCardsAvailable(ctx context.Context, cardName string) ([]MinCard, error) {
 
-	list, err := cards.ListCardsAvailable(ctx, cardName)
+	list, err := features.ListCardsAvailable(ctx, cardName)
 
-	if err != nil && errors.Is(err, cards.ErrCardNotFound) {
+	if err != nil && errors.Is(err, features.ErrCardNotFound) {
 		return nil, ErrResourceNotFound
 	}
 

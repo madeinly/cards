@@ -4,7 +4,7 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/madeinly/cards/internal/features/cards"
+	"github.com/madeinly/cards/internal/features"
 )
 
 type UpdateCardStockParams struct {
@@ -16,7 +16,7 @@ type UpdateCardStockParams struct {
 
 func UpdateCardStock(ctx context.Context, params UpdateCardStockParams) error {
 
-	cardExist, err := cards.CheckcardExist(ctx, cards.CheckcardExistParams{
+	cardExist, err := features.CheckcardExist(ctx, features.CheckcardExistParams{
 		CardId:   params.Id,
 		Finish:   params.Finish,
 		Language: params.Language,
@@ -32,7 +32,7 @@ func UpdateCardStock(ctx context.Context, params UpdateCardStockParams) error {
 
 	stock, _ := strconv.ParseInt(params.Stock, 10, 64)
 
-	err = cards.UpdateCardStock(ctx, cards.UpdateCardStockParams{
+	err = features.UpdateCardStock(ctx, features.UpdateCardStockParams{
 		Id:       params.Id,
 		Finish:   params.Finish,
 		Language: params.Language,

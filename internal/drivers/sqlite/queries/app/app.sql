@@ -111,45 +111,71 @@ JOIN cards_price AS p
       ON p.card_id = c.id
      AND p.finish  = c.finish
 WHERE
-  
     (@cardName = '' OR c.name_en LIKE '%' || @cardName || '%')
-
     AND (
-        (@langEn = 0 AND @langES = 0)         
+        (@langEn = 0 AND @langES = 0)
         OR (@langEn = 1 AND c.language = 'English')
         OR (@langES = 1 AND c.language = 'Spanish')
     )
-
+    AND (
+        @anyColor = 1
+        OR (
+            @matchType != 'tight'
+            AND (
+                (@colorB = 1 AND c.colors LIKE 'B%')
+                OR (@colorG = 1 AND c.colors LIKE '%G%')
+                OR (@colorR = 1 AND c.colors LIKE '%R%')
+                OR (@colorU = 1 AND c.colors LIKE '%U%')
+                OR (@colorW = 1 AND c.colors LIKE '%W')
+            )
+        )
+        OR (
+            @matchType = 'tight'
+            AND (@cardColor = '' OR c.colors = @cardColor)
+        )
+    )
     AND (@cardType = '' OR c.types = @cardType)
     AND (@cardMv = -1 OR c.mana_value = @cardMv)
     AND (@cardFinish = '' OR c.finish = @cardFinish)
     AND (@cardPriceMin = 0 OR p.price >= @cardPriceMin)
     AND (@cardPriceMax = 0 OR p.price <= @cardPriceMax)
-    AND (@matchType = 'loose' OR @cardColor = '' OR c.colors = @cardColor)
-    AND (@matchType = 'tight' OR @cardColor = '' OR c.colors LIKE '%' || @cardColor || '%')
-LIMIT  @limit
+LIMIT @limit
 OFFSET @offset;
+
 
 -- name: CountFilteredCards :one
 SELECT
-   COUNT( DISTINCT c.name_en)
-   
+    COUNT( distinct c.id)
 FROM cards AS c
 JOIN cards_price AS p
       ON p.card_id = c.id
      AND p.finish  = c.finish
 WHERE
     (@cardName = '' OR c.name_en LIKE '%' || @cardName || '%')
-
     AND (
-        (@langEn = 0 AND @langES = 0)        
+        (@langEn = 0 AND @langES = 0)
         OR (@langEn = 1 AND c.language = 'English')
         OR (@langES = 1 AND c.language = 'Spanish')
+    )
+    AND (
+        @anyColor = 1
+        OR (
+            @matchType != 'tight'
+            AND (
+                (@colorB = 1 AND c.colors LIKE 'B%')
+                OR (@colorG = 1 AND c.colors LIKE '%G%')
+                OR (@colorR = 1 AND c.colors LIKE '%R%')
+                OR (@colorU = 1 AND c.colors LIKE '%U%')
+                OR (@colorW = 1 AND c.colors LIKE '%W')
+            )
+        )
+        OR (
+            @matchType = 'tight'
+            AND (@cardColor = '' OR c.colors = @cardColor)
+        )
     )
     AND (@cardType = '' OR c.types = @cardType)
     AND (@cardMv = -1 OR c.mana_value = @cardMv)
     AND (@cardFinish = '' OR c.finish = @cardFinish)
     AND (@cardPriceMin = 0 OR p.price >= @cardPriceMin)
-    AND (@cardPriceMax = 0 OR p.price <= @cardPriceMax)
-    AND (@matchType = 'loose' OR @cardColor = '' OR c.colors = @cardColor)
-    AND (@matchType = 'tight' OR @cardColor = '' OR c.colors LIKE '%' || @cardColor || '%');
+    AND (@cardPriceMax = 0 OR p.price <= @cardPriceMax);

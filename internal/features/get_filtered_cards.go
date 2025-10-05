@@ -20,6 +20,12 @@ type GetFilteredCardsParams struct {
 	CardPriceMax int64
 	MatchType    string
 	Colors       string
+	AnyColor     int64
+	ColorB       int64
+	ColorG       int64
+	ColorR       int64
+	ColorU       int64
+	ColorW       int64
 	LangEn       int64
 	LangEs       int64
 	Limit        int64
@@ -43,6 +49,12 @@ func GetFilteredCards(ctx context.Context, params GetFilteredCardsParams) ([]app
 		CardPriceMax: params.CardPriceMax,
 		MatchType:    params.MatchType,
 		CardColor:    params.Colors,
+		AnyColor:     params.AnyColor,
+		ColorB:       params.ColorB,
+		ColorG:       params.ColorG,
+		ColorR:       params.ColorR,
+		ColorU:       params.ColorU,
+		ColorW:       params.ColorW,
 		Offset:       params.Offset,
 		Limit:        params.Limit,
 	}
@@ -63,6 +75,12 @@ func GetFilteredCards(ctx context.Context, params GetFilteredCardsParams) ([]app
 		CardPriceMax: params.CardPriceMax,
 		MatchType:    params.MatchType,
 		CardColor:    params.Colors,
+		AnyColor:     params.AnyColor,
+		ColorB:       params.ColorB,
+		ColorG:       params.ColorG,
+		ColorR:       params.ColorR,
+		ColorU:       params.ColorU,
+		ColorW:       params.ColorW,
 	}
 
 	cardCount, err := queryApp.CountFilteredCards(ctx, countParams)

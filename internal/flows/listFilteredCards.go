@@ -42,6 +42,14 @@ type CardIndexPage struct {
 	Cards []CardIndex
 }
 
+type colorMatch struct {
+	B int64
+	G int64
+	R int64
+	U int64
+	W int64
+}
+
 func ListFilteredCards(ctx context.Context, params ListFilteredCardsParams) (CardIndexPage, error) {
 
 	if params.Limit == "" || params.Limit == "-1" {
@@ -77,7 +85,15 @@ func ListFilteredCards(ctx context.Context, params ListFilteredCardsParams) (Car
 		cardEs = 1
 	}
 
-	//ORDER OF COLORS IN MTGJSON: B, G, R, U, W
+	colorMatch := parseColorString(params.Colors)
+
+	var anyColor int64
+	if params.Colors == "" {
+		anyColor = 1
+	} else {
+
+		anyColor = 0
+	}
 
 	list, cardCount, err := features.GetFilteredCards(ctx, features.GetFilteredCardsParams{
 		CardName:     params.CardName,
@@ -87,9 +103,15 @@ func ListFilteredCards(ctx context.Context, params ListFilteredCardsParams) (Car
 		CardPriceMin: cardPriceMin,
 		CardPriceMax: cardPriceMax,
 		MatchType:    params.MatchType,
-		Colors:       params.Colors,
 		LangEn:       cardEn,
 		LangEs:       cardEs,
+		AnyColor:     anyColor,
+		Colors:       params.Colors,
+		ColorB:       colorMatch.B,
+		ColorG:       colorMatch.G,
+		ColorR:       colorMatch.R,
+		ColorU:       colorMatch.U,
+		ColorW:       colorMatch.W,
 		Limit:        limit,
 		Offset:       offset,
 	})
@@ -165,4 +187,23 @@ func listUniqueCards(rows []appDB.GetFilteredCardsRow) []CardIndex {
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].CardId < out[j].CardId })
 	return out
+}
+
+func parseColorString(s string) colorMatch {
+	var m colorMatch
+	for _, c := range s {
+		switch c {
+		case 'B', 'b':
+			m.B = 1
+		case 'G', 'g':
+			m.G = 1
+		case 'R', 'r':
+			m.R = 1
+		case 'U', 'u':
+			m.U = 1
+		case 'W', 'w':
+			m.W = 1
+		}
+	}
+	return m
 }

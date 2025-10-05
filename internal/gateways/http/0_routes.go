@@ -9,17 +9,17 @@ import (
 var Routes = []core.Route{
 	{
 		Type:    "GET",
-		Pattern: "/card",
+		Pattern: "/cards",
 		Handler: http.HandlerFunc(GetCard),
 	},
 	{
 		Type:    "POST",
-		Pattern: "/card",
+		Pattern: "/cards",
 		Handler: http.HandlerFunc(CreateCard),
 	},
 	{
 		Type:    "POST",
-		Pattern: "/card/bulk",
+		Pattern: "/cards/bulk",
 		Handler: http.HandlerFunc(BulkCreate),
 	},
 	{
@@ -29,12 +29,12 @@ var Routes = []core.Route{
 	},
 	{
 		Type:    "GET",
-		Pattern: "/card/sets",
+		Pattern: "/cards/sets",
 		Handler: http.HandlerFunc(GetSets),
 	},
 	{
 		Type:    "PATCH",
-		Pattern: "/card",
+		Pattern: "/cards",
 		Handler: http.HandlerFunc(UpdateCardStock),
 	},
 	{

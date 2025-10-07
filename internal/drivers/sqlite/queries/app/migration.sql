@@ -3,7 +3,6 @@ CREATE TABLE IF NOT EXISTS cards (
     name_en     TEXT NOT NULL,
     name_es     TEXT NOT NULL,
     sku         TEXT NOT NULL UNIQUE,
-    url_image   TEXT NOT NULL,
     set_name    TEXT NOT NULL,
     set_code    TEXT NOT NULL,
     mana_value  INTEGER NOT NULL,
@@ -14,9 +13,9 @@ CREATE TABLE IF NOT EXISTS cards (
     finish      TEXT NOT NULL CHECK(finish IN ('foil', 'normal', 'etched')),
     has_vendor  BOOLEAN NOT NULL DEFAULT 0 CHECK(has_vendor IN (0, 1)),
     language    TEXT NOT NULL CHECK(language IN ('Spanish', 'English')),
-    visibility  TEXT NOT NULL CHECK(visibility IN (0, 1)),
+    visibility  INTEGER NOT NULL CHECK(visibility IN (0, 1)),
     image_path  TEXT, -- Consider NOT NULL if required
-    image_url   TEXT,  -- Consider NOT NULL if required
+    image_url   TEXT NOT NULL,  -- Consider NOT NULL if required
     stock       INTEGER NOT NULL DEFAULT 0,
     created_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,

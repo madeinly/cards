@@ -15,7 +15,6 @@ INSERT INTO cards (
     name_en,
     name_es,
     sku,
-    url_image,
     set_name,
     set_code,
     mana_value,
@@ -31,7 +30,7 @@ INSERT INTO cards (
     image_url,
     stock
 ) VALUES (
-    @id, @name_en, @name_es, @sku, @url_image, @set_name, @set_code,
+    @id, @name_en, @name_es, @sku, @set_name, @set_code,
     @mana_value, @colors, @types, @rarity, @number, @finish, @has_vendor, @language,
     @visibility, @image_path, @image_url, @stock
 );
@@ -105,7 +104,7 @@ SELECT
     c.name_en,
     c.language,
     p.price,
-    c.url_image
+    c.image_url
 FROM cards AS c
 JOIN cards_price AS p
       ON p.card_id = c.id

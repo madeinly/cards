@@ -7,6 +7,10 @@ import (
 	"github.com/madeinly/cards/internal/features"
 )
 
+func GetCardfromIdValidator(scryfallId string, finish string, language string) {
+
+}
+
 func GetCardfromId(ctx context.Context, scryfallId string, finish string, language string) (CardBase, error) {
 
 	rawCard, err := features.GetRawCard(ctx, scryfallId)

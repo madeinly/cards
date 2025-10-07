@@ -66,7 +66,6 @@ func RegisterCardTx(ctx context.Context, tx *sql.Tx, params RegisterCardParams) 
 		NameEn:     card.NameEN,
 		NameEs:     card.NameES,
 		Sku:        sku,
-		UrlImage:   card.ImageURL,
 		SetName:    card.SetName,
 		SetCode:    card.SetCode,
 		ManaValue:  card.ManaValue,
@@ -77,9 +76,9 @@ func RegisterCardTx(ctx context.Context, tx *sql.Tx, params RegisterCardParams) 
 		Number:     card.Number,
 		HasVendor:  hasVendor,
 		Language:   params.Language,
-		Visibility: params.Visibility,
-		ImagePath:  sql.NullString{Valid: false},
-		ImageUrl:   sql.NullString{Valid: false},
+		Visibility: 1,
+		ImagePath:  sql.NullString{Valid: false, String: card.ImageURL},
+		ImageUrl:   card.ImageURL,
 		Stock:      stock,
 	})
 

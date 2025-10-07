@@ -81,7 +81,7 @@ func GetDashboardCards(ctx context.Context, params GetDashboardCardsParams) (Car
 				ID:        repoCard.ID,
 				NameEN:    repoCard.NameEn,
 				NameES:    repoCard.NameEs,
-				ImageURL:  repoCard.UrlImage,
+				ImageURL:  repoCard.ImageUrl,
 				SetCode:   repoCard.SetCode,
 				SetName:   repoCard.SetName,
 				ManaValue: repoCard.ManaValue,

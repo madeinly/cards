@@ -67,7 +67,6 @@ func RegisterCard(ctx context.Context, params RegisterCardParams) error {
 		NameEn:     card.NameEN,
 		NameEs:     card.NameES,
 		Sku:        sku,
-		UrlImage:   card.ImageURL,
 		SetName:    card.SetName,
 		SetCode:    card.SetCode,
 		ManaValue:  card.ManaValue,
@@ -78,9 +77,9 @@ func RegisterCard(ctx context.Context, params RegisterCardParams) error {
 		Finish:     params.Finish,
 		HasVendor:  hasVendor,
 		Language:   params.Language,
-		Visibility: params.Visibility,
+		Visibility: 1,
 		ImagePath:  sql.NullString{Valid: false},
-		ImageUrl:   sql.NullString{Valid: false},
+		ImageUrl:   card.ImageURL,
 		Stock:      stock,
 	})
 

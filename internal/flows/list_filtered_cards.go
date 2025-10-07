@@ -172,7 +172,7 @@ func listUniqueCards(rows []appDB.GetFilteredCardsRow) []CardIndex {
 		m[r.NameEn] = &CardIndex{
 			CardId:       r.ID,
 			CardName:     r.NameEn,
-			CardImage:    r.UrlImage,
+			CardImage:    r.ImageUrl,
 			CardPriceMin: r.Price,
 			CardPriceMax: r.Price,
 			IncludeEn:    r.Language == "English",

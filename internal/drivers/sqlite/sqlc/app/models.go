@@ -13,7 +13,6 @@ type Card struct {
 	NameEn     string         `json:"name_en"`
 	NameEs     string         `json:"name_es"`
 	Sku        string         `json:"sku"`
-	UrlImage   string         `json:"url_image"`
 	SetName    string         `json:"set_name"`
 	SetCode    string         `json:"set_code"`
 	ManaValue  int64          `json:"mana_value"`
@@ -24,9 +23,9 @@ type Card struct {
 	Finish     string         `json:"finish"`
 	HasVendor  bool           `json:"has_vendor"`
 	Language   string         `json:"language"`
-	Visibility string         `json:"visibility"`
+	Visibility int64          `json:"visibility"`
 	ImagePath  sql.NullString `json:"image_path"`
-	ImageUrl   sql.NullString `json:"image_url"`
+	ImageUrl   string         `json:"image_url"`
 	Stock      int64          `json:"stock"`
 	CreatedAt  string         `json:"created_at"`
 	UpdatedAt  string         `json:"updated_at"`

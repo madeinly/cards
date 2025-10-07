@@ -9,7 +9,7 @@ import (
 var Routes = []core.Route{
 	{
 		Type:    "GET",
-		Pattern: "/cards",
+		Pattern: "/cards/unique",
 		Handler: http.HandlerFunc(GetCard),
 	},
 	{

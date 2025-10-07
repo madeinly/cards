@@ -1,8 +1,8 @@
 version: "2"
 sql:
   - engine: "sqlite"
-    schema: ["internal/drivers/sqlite/queries/app/migration.sql"]
-    queries: "internal/drivers/sqlite/queries/app/app.sql"
+    schema: ["internal/drivers/sqlite/app_queries/migration.sql"]
+    queries: "internal/drivers/sqlite/app_queries/app.sql"
     gen:
       go:
         package: "appDB"
@@ -15,8 +15,8 @@ sql:
         emit_prepared_queries: true
 
   - engine: "sqlite"
-    schema: ["internal/drivers/sqlite/queries/cards/schema.sql"]
-    queries: "internal/drivers/sqlite/queries/cards/cards.sql"
+    schema: ["internal/drivers/sqlite/cards_queries/schema.sql"]
+    queries: "internal/drivers/sqlite/cards_queries/cards.sql"
     gen:
       go:
         package: "mtgDB"

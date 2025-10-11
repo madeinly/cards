@@ -14,7 +14,7 @@ import (
 	"github.com/madeinly/core"
 )
 
-func RegisterBulk(ctx context.Context, file multipart.File, header *multipart.FileHeader) error {
+func RegisterBulk(ctx context.Context, file multipart.File, header *multipart.FileHeader, additive bool) error {
 	// 1. save the file (your existing code)
 
 	fmt.Println("started bulk")
@@ -67,7 +67,7 @@ func RegisterBulk(ctx context.Context, file multipart.File, header *multipart.Fi
 			return fmt.Errorf("row %d: not enough columns", i+1)
 		}
 		params = append(params, RegisterCardParams{
-			ID:         row[0],
+			ScryfallId: row[0],
 			Language:   row[1],
 			Stock:      row[2],
 			Vendor:     row[3],
@@ -89,7 +89,7 @@ func RegisterBulk(ctx context.Context, file multipart.File, header *multipart.Fi
 	var errs []error
 	for _, p := range params {
 		if err := RegisterCardTx(ctx, tx, p); err != nil {
-			errs = append(errs, fmt.Errorf("row %s: %w", p.ID, err))
+			errs = append(errs, fmt.Errorf("row %s: %w", p.ScryfallId, err))
 		}
 	}
 	if len(errs) > 0 {

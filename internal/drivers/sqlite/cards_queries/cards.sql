@@ -36,3 +36,8 @@ SELECT code, name
 FROM sets
 WHERE isOnlineOnly = 0;
 
+-- name: ListAllNames :many
+SELECT DISTINCT name
+FROM cards
+WHERE name LIKE '%'||@cardName||'%';
+

@@ -10,7 +10,7 @@ import (
 	"github.com/madeinly/core"
 )
 
-//go:embed internal/drivers/sqlite/queries/app/migration.sql
+//go:embed internal/drivers/sqlite/app_queries/migration.sql
 var initialSchema string
 
 var migration = core.Migration{

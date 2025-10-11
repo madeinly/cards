@@ -68,6 +68,13 @@ FROM
     cards
 WHERE name_en LIKE '%' || @name || '%';
 
+-- name: ListUniqueAvailableCards :many
+SELECT 
+   DISTINCT name_en
+FROM
+    cards
+WHERE name_en LIKE '%' || @name || '%';
+
 -- name: GetCardsWithPrice :many
 SELECT
     c.*,
@@ -104,77 +111,120 @@ SELECT
     c.name_en,
     c.language,
     p.price,
-    c.image_url
+    c.image_url,
+    c.finish,
+    c.rarity,
+    c.mana_value,
+    c.colors,
+    c.types
 FROM cards AS c
 JOIN cards_price AS p
       ON p.card_id = c.id
      AND p.finish  = c.finish
 WHERE
+    -- Name filter
     (@cardName = '' OR c.name_en LIKE '%' || @cardName || '%')
+
+    -- Language Filter
     AND (
         (@langEn = 0 AND @langES = 0)
         OR (@langEn = 1 AND c.language = 'English')
         OR (@langES = 1 AND c.language = 'Spanish')
     )
+
+    -- Color Filter --------------------------------------------------------
     AND (
-        @anyColor = 1
-        OR (
-            @matchType != 'tight'
+        -- loose + colourless  ->  accept every card (skip colour filter)
+        (@matchType = 'loose' AND @colorless = 1)
+
+        OR
+
+        -- normal loose match
+        (
+            @matchType = 'loose'
             AND (
-                (@colorB = 1 AND c.colors LIKE 'B%')
+                   (@colorB = 1 AND c.colors LIKE '%B%')
                 OR (@colorG = 1 AND c.colors LIKE '%G%')
                 OR (@colorR = 1 AND c.colors LIKE '%R%')
                 OR (@colorU = 1 AND c.colors LIKE '%U%')
-                OR (@colorW = 1 AND c.colors LIKE '%W')
+                OR (@colorW = 1 AND c.colors LIKE '%W%')
+                OR (@colorless = 1 AND c.colors = '')
             )
         )
+
+        -- tight match
         OR (
             @matchType = 'tight'
-            AND (@cardColor = '' OR c.colors = @cardColor)
+            AND (
+                   (@colorless = 1 AND c.colors = '')
+                OR (@cardColor <> '' AND c.colors = @cardColor)
+            )
         )
     )
-    AND (@cardType = '' OR c.types = @cardType)
-    AND (@cardMv = -1 OR c.mana_value = @cardMv)
-    AND (@cardFinish = '' OR c.finish = @cardFinish)
+
+    -- Other simple 1-of filters
+    AND (@cardType   = '' OR c.types      = @cardType)
+    AND (@cardMv     = -1 OR c.mana_value = @cardMv)
+    AND (@cardFinish = '' OR c.finish     = @cardFinish)
     AND (@cardPriceMin = 0 OR p.price >= @cardPriceMin)
     AND (@cardPriceMax = 0 OR p.price <= @cardPriceMax)
+
 LIMIT @limit
 OFFSET @offset;
 
 
 -- name: CountFilteredCards :one
 SELECT
-    COUNT( distinct c.id)
+    COUNT(c.id)
 FROM cards AS c
 JOIN cards_price AS p
       ON p.card_id = c.id
      AND p.finish  = c.finish
 WHERE
+    -- Name filter
     (@cardName = '' OR c.name_en LIKE '%' || @cardName || '%')
+
+    -- Language Filter
     AND (
         (@langEn = 0 AND @langES = 0)
         OR (@langEn = 1 AND c.language = 'English')
         OR (@langES = 1 AND c.language = 'Spanish')
     )
+
+    -- Color Filter --------------------------------------------------------
     AND (
-        @anyColor = 1
-        OR (
-            @matchType != 'tight'
+        -- loose + colourless  ->  accept every card (skip colour filter)
+        (@matchType = 'loose' AND @colorless = 1)
+
+        OR
+
+        -- normal loose match
+        (
+            @matchType = 'loose'
             AND (
-                (@colorB = 1 AND c.colors LIKE 'B%')
+                   (@colorB = 1 AND c.colors LIKE '%B%')
                 OR (@colorG = 1 AND c.colors LIKE '%G%')
                 OR (@colorR = 1 AND c.colors LIKE '%R%')
                 OR (@colorU = 1 AND c.colors LIKE '%U%')
-                OR (@colorW = 1 AND c.colors LIKE '%W')
+                OR (@colorW = 1 AND c.colors LIKE '%W%')
+                OR (@colorless = 1 AND c.colors = '')
             )
         )
+
+        -- tight match
         OR (
             @matchType = 'tight'
-            AND (@cardColor = '' OR c.colors = @cardColor)
+            AND (
+                   (@colorless = 1 AND c.colors = '')
+                OR (@cardColor <> '' AND c.colors = @cardColor)
+            )
         )
     )
-    AND (@cardType = '' OR c.types = @cardType)
-    AND (@cardMv = -1 OR c.mana_value = @cardMv)
-    AND (@cardFinish = '' OR c.finish = @cardFinish)
+
+    -- Other simple 1-of filters
+    AND (@cardType   = '' OR c.types      = @cardType)
+    AND (@cardMv     = -1 OR c.mana_value = @cardMv)
+    AND (@cardFinish = '' OR c.finish     = @cardFinish)
     AND (@cardPriceMin = 0 OR p.price >= @cardPriceMin)
     AND (@cardPriceMax = 0 OR p.price <= @cardPriceMax);
+

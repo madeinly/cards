@@ -4,10 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"sort"
 	"strconv"
 
-	appDB "github.com/madeinly/cards/internal/drivers/sqlite/sqlc/app"
 	"github.com/madeinly/cards/internal/features"
 )
 
@@ -27,13 +25,16 @@ type ListFilteredCardsParams struct {
 }
 
 type CardIndex struct {
-	CardName     string  `json:"card_name"`
-	CardId       string  `json:"card_id"`
-	CardImage    string  `json:"card_image"`
-	CardPriceMin float64 `json:"card_priceMin"`
-	CardPriceMax float64 `json:"card_priceMax"`
-	IncludeEn    bool    `json:"card_includeEn"`
-	IncludeEs    bool    `json:"card_includeEs"`
+	CardName   string  `json:"card_name"`
+	CardId     string  `json:"card_id"`
+	CardImage  string  `json:"card_image"`
+	CardPrice  float64 `json:"card_price"`
+	Language   string  `json:"card_language"`
+	Finish     string  `json:"card_finish"`
+	Rarity     string  `json:"card_rarity"`
+	ManaValue  int64   `json:"card_manaValue"`
+	CardType   string  `json:"card_type"`
+	CardColors string  `json:"card_colors"`
 }
 
 type CardIndexPage struct {
@@ -48,6 +49,7 @@ type colorMatch struct {
 	R int64
 	U int64
 	W int64
+	C int64
 }
 
 func ListFilteredCards(ctx context.Context, params ListFilteredCardsParams) (CardIndexPage, error) {
@@ -87,12 +89,18 @@ func ListFilteredCards(ctx context.Context, params ListFilteredCardsParams) (Car
 
 	colorMatch := parseColorString(params.Colors)
 
-	var anyColor int64
-	if params.Colors == "" {
-		anyColor = 1
+	var colorless int64
+	if params.Colors == "C" || params.Colors == "c" || params.Colors == "" {
+		colorless = 1
 	} else {
+		colorless = 0
+	}
 
-		anyColor = 0
+	var matchType string
+	if params.MatchType == "" || params.MatchType == "loose" {
+		matchType = "loose"
+	} else {
+		matchType = "tight"
 	}
 
 	list, cardCount, err := features.GetFilteredCards(ctx, features.GetFilteredCardsParams{
@@ -102,10 +110,10 @@ func ListFilteredCards(ctx context.Context, params ListFilteredCardsParams) (Car
 		CardMv:       cardMv,
 		CardPriceMin: cardPriceMin,
 		CardPriceMax: cardPriceMax,
-		MatchType:    params.MatchType,
+		MatchType:    matchType,
 		LangEn:       cardEn,
 		LangEs:       cardEs,
-		AnyColor:     anyColor,
+		Colorless:    colorless,
 		Colors:       params.Colors,
 		ColorB:       colorMatch.B,
 		ColorG:       colorMatch.G,
@@ -127,7 +135,22 @@ func ListFilteredCards(ctx context.Context, params ListFilteredCardsParams) (Car
 
 	}
 
-	cardList := listUniqueCards(list)
+	var cardList []CardIndex
+
+	for _, item := range list {
+		cardList = append(cardList, CardIndex{
+			CardName:   item.NameEn,
+			CardId:     item.ID,
+			CardImage:  item.ImageUrl,
+			CardPrice:  item.Price,
+			Language:   item.Language,
+			Finish:     item.Finish,
+			Rarity:     item.Rarity,
+			ManaValue:  item.ManaValue,
+			CardType:   item.Types,
+			CardColors: item.Colors,
+		})
+	}
 
 	var totalPages int64
 	if limit == -1 {
@@ -144,49 +167,6 @@ func ListFilteredCards(ctx context.Context, params ListFilteredCardsParams) (Car
 
 	return catalog, nil
 
-}
-
-func listUniqueCards(rows []appDB.GetFilteredCardsRow) []CardIndex {
-	// temp map to aggregate while we scan
-	m := make(map[string]*CardIndex) // key: NameEn
-
-	for _, r := range rows {
-		// already seen?  update aggregates
-		if e, ok := m[r.NameEn]; ok {
-			if r.Price < e.CardPriceMin {
-				e.CardPriceMin = r.Price
-			}
-			if r.Price > e.CardPriceMax {
-				e.CardPriceMax = r.Price
-			}
-			if r.Language == "English" {
-				e.IncludeEn = true
-			}
-			if r.Language == "Spanish" {
-				e.IncludeEs = true
-			}
-			continue
-		}
-
-		// first time we see this card
-		m[r.NameEn] = &CardIndex{
-			CardId:       r.ID,
-			CardName:     r.NameEn,
-			CardImage:    r.ImageUrl,
-			CardPriceMin: r.Price,
-			CardPriceMax: r.Price,
-			IncludeEn:    r.Language == "English",
-			IncludeEs:    r.Language == "Spanish",
-		}
-	}
-
-	// map -> slice (stable order: alphabetical by name)
-	out := make([]CardIndex, 0, len(m))
-	for _, v := range m {
-		out = append(out, *v)
-	}
-	sort.Slice(out, func(i, j int) bool { return out[i].CardId < out[j].CardId })
-	return out
 }
 
 func parseColorString(s string) colorMatch {

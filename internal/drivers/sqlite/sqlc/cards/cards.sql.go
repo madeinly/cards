@@ -119,3 +119,32 @@ func (q *Queries) GetSets(ctx context.Context) ([]GetSetsRow, error) {
 	}
 	return items, nil
 }
+
+const listAllNames = `-- name: ListAllNames :many
+SELECT DISTINCT name
+FROM cards
+WHERE name LIKE '%'||?1||'%'
+`
+
+func (q *Queries) ListAllNames(ctx context.Context, cardname sql.NullString) ([]string, error) {
+	rows, err := q.query(ctx, q.listAllNamesStmt, listAllNames, cardname)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var name string
+		if err := rows.Scan(&name); err != nil {
+			return nil, err
+		}
+		items = append(items, name)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

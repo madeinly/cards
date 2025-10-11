@@ -12,7 +12,7 @@ import (
 )
 
 type RegisterCardParams struct {
-	ID         string `json:"scryfall_id"`
+	ScryfallId string `json:"scryfall_id"`
 	Vendor     string `json:"vendor"`
 	Language   string `json:"language"`
 	Finish     string `json:"finish"`
@@ -22,14 +22,14 @@ type RegisterCardParams struct {
 
 func RegisterCard(ctx context.Context, params RegisterCardParams) error {
 
-	card, _ := GetCardfromId(ctx, params.ID, params.Finish, params.Language)
+	card, _ := GetCardfromId(ctx, params.ScryfallId, params.Finish, params.Language)
 
 	db := core.DB()
 
 	qApp := appDB.New(db)
 
 	exists, err := qApp.CardExists(ctx, appDB.CardExistsParams{
-		ID:       params.ID,
+		ID:       params.ScryfallId,
 		Finish:   params.Finish,
 		Language: params.Language,
 	})
@@ -42,7 +42,7 @@ func RegisterCard(ctx context.Context, params RegisterCardParams) error {
 		return fmt.Errorf("the element already exist")
 	}
 
-	hasVendor, err := qApp.GetCardHasVendorById(ctx, params.ID)
+	hasVendor, err := qApp.GetCardHasVendorById(ctx, params.ScryfallId)
 
 	if err != nil && err != sql.ErrNoRows {
 		return fmt.Errorf("there was a problem getting the hasVendor")
@@ -61,6 +61,7 @@ func RegisterCard(ctx context.Context, params RegisterCardParams) error {
 	sku := strings.ToLower(params.Language) + "-" + params.Finish + "-" + card.SetCode + "-" + card.Number
 
 	stock, _ := strconv.ParseInt(params.Stock, 10, 64)
+	visibility, _ := strconv.ParseInt(params.Visibility, 10, 64)
 
 	err = qApp.CreateCard(ctx, appDB.CreateCardParams{
 		ID:         card.ID,
@@ -77,7 +78,7 @@ func RegisterCard(ctx context.Context, params RegisterCardParams) error {
 		Finish:     params.Finish,
 		HasVendor:  hasVendor,
 		Language:   params.Language,
-		Visibility: 1,
+		Visibility: visibility,
 		ImagePath:  sql.NullString{Valid: false},
 		ImageUrl:   card.ImageURL,
 		Stock:      stock,

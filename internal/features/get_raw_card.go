@@ -5,8 +5,7 @@ import (
 	"database/sql"
 	"errors"
 
-	appDB "github.com/madeinly/cards/internal/drivers/sqlite/sqlc/app"
-	"github.com/madeinly/core"
+	mtgDB "github.com/madeinly/cards/internal/drivers/sqlite/sqlc/cards"
 )
 
 /*
@@ -24,16 +23,16 @@ uses scryfallID to retrieve mtgDB.GetCardRow:
 		Setname   string  `json:"setname"`
 	}
 */
-func GetCardFromId(ctx context.Context, cardId string) (appDB.Card, error) {
+func GetRawCard(ctx context.Context, scryfallId string) (mtgDB.GetCardRow, error) {
 
-	DB := core.DB()
+	cardsDB := GetCardsDB()
 
-	queryApp := appDB.New(DB)
+	queryCards := mtgDB.New(cardsDB)
 
-	repoCard, err := queryApp.GetCard(ctx, cardId)
+	repoCard, err := queryCards.GetCard(ctx, scryfallId)
 
 	if err != nil && errors.Is(err, sql.ErrNoRows) {
-		return appDB.Card{}, ErrCardNotFound
+		return mtgDB.GetCardRow{}, ErrCardNotFound
 	}
 
 	return repoCard, nil

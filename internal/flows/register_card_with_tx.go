@@ -14,17 +14,16 @@ import (
 
 func RegisterCardTx(ctx context.Context, tx *sql.Tx, params RegisterCardParams) error {
 
-	card, err := GetCardFromIDTx(ctx, tx, params.ID, params.Finish, params.Language)
+	card, err := GetCardFromIDTx(ctx, tx, params.ScryfallId, params.Finish, params.Language)
 
-	if err != nil && err != sql.ErrNoRows {
-
+	if err != nil {
 		return err
 	}
 
 	qApp := appDB.New(tx)
 
 	exists, err := qApp.CardExists(ctx, appDB.CardExistsParams{
-		ID:       params.ID,
+		ID:       params.ScryfallId,
 		Finish:   params.Finish,
 		Language: params.Language,
 	})
@@ -37,7 +36,7 @@ func RegisterCardTx(ctx context.Context, tx *sql.Tx, params RegisterCardParams) 
 		return fmt.Errorf("the element already exist")
 	}
 
-	hasVendor, err := qApp.GetCardHasVendorById(ctx, params.ID)
+	hasVendor, err := qApp.GetCardHasVendorById(ctx, params.ScryfallId)
 
 	if err != nil && err != sql.ErrNoRows {
 		return fmt.Errorf("there was a problem getting the hasVendor")
@@ -77,6 +76,81 @@ func RegisterCardTx(ctx context.Context, tx *sql.Tx, params RegisterCardParams) 
 		HasVendor:  hasVendor,
 		Language:   params.Language,
 		Visibility: 1,
+		ImagePath:  sql.NullString{Valid: false, String: card.ImageURL},
+		ImageUrl:   card.ImageURL,
+		Stock:      stock,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+func RegisterOrUpdateCardTx(ctx context.Context, tx *sql.Tx, params RegisterCardParams) error {
+
+	card, err := GetCardFromIDTx(ctx, tx, params.ScryfallId, params.Finish, params.Language)
+
+	if err != nil {
+		return err
+	}
+
+	qApp := appDB.New(tx)
+
+	exists, _ := qApp.CardExists(ctx, appDB.CardExistsParams{
+		ID:       params.ScryfallId,
+		Finish:   params.Finish,
+		Language: params.Language,
+	})
+
+	var previousHasVendor bool
+	var previousStock int64
+
+	if exists == 1 {
+
+		CardInStock, err := features.GetCardFromId(ctx, card.ID)
+
+		if err != nil {
+			return fmt.Errorf("there was a problem getting the stock")
+		}
+
+		previousHasVendor = CardInStock.HasVendor
+		previousStock = CardInStock.Stock
+
+	}
+
+	sku := strings.ToLower(params.Language) + "-" + params.Finish + "-" + card.SetCode + "-" + card.Number
+
+	stock, err := strconv.ParseInt(params.Stock, 10, 64)
+
+	stock = stock + previousStock
+
+	hasVendor := previousHasVendor || params.Vendor != ""
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	visibility, _ := strconv.ParseInt(params.Visibility, 10, 64)
+
+	err = qApp.CreateCard(ctx, appDB.CreateCardParams{
+		ID:         card.ID,
+		NameEn:     card.NameEN,
+		NameEs:     card.NameES,
+		Sku:        sku,
+		SetName:    card.SetName,
+		SetCode:    card.SetCode,
+		ManaValue:  card.ManaValue,
+		Colors:     card.Colors,
+		Types:      card.Types,
+		Finish:     params.Finish,
+		Rarity:     card.Rarity,
+		Number:     card.Number,
+		HasVendor:  hasVendor,
+		Language:   params.Language,
+		Visibility: visibility,
 		ImagePath:  sql.NullString{Valid: false, String: card.ImageURL},
 		ImageUrl:   card.ImageURL,
 		Stock:      stock,

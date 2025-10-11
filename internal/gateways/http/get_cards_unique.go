@@ -14,7 +14,7 @@ func GetCard(w http.ResponseWriter, r *http.Request) {
 
 	bag := core.Validate()
 
-	cardID := r.URL.Query().Get("card_id")
+	cardID := r.URL.Query().Get("card_scryfallId")
 	cardFinish := r.URL.Query().Get("card_finish")
 	cardLanguage := r.URL.Query().Get("card_language")
 

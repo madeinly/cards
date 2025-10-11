@@ -13,6 +13,11 @@ var Routes = []core.Route{
 		Handler: http.HandlerFunc(GetCard),
 	},
 	{
+		Type:    "GET",
+		Pattern: "/cards/names",
+		Handler: http.HandlerFunc(ListCardNames),
+	},
+	{
 		Type:    "POST",
 		Pattern: "/cards",
 		Handler: http.HandlerFunc(CreateCard),

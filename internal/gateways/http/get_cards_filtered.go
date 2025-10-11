@@ -27,7 +27,7 @@ func GetFilteredCards(w http.ResponseWriter, r *http.Request) {
 	limit := r.URL.Query().Get("limit")
 	page := r.URL.Query().Get("page")
 
-	fmt.Println("langEn value:", langEn)
+	fmt.Println("MATCHTYPE", cardMatchType)
 
 	// bag.Validate(cardID, card.IdRules)
 	// bag.Validate(cardLanguage, card.LanguageRules)

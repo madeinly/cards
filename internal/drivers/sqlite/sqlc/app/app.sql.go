@@ -59,38 +59,56 @@ func (q *Queries) CountCardsWithPrice(ctx context.Context, arg CountCardsWithPri
 
 const countFilteredCards = `-- name: CountFilteredCards :one
 SELECT
-    COUNT( distinct c.id)
+    COUNT(c.id)
 FROM cards AS c
 JOIN cards_price AS p
       ON p.card_id = c.id
      AND p.finish  = c.finish
 WHERE
+    -- Name filter
     (?1 = '' OR c.name_en LIKE '%' || ?1 || '%')
+
+    -- Language Filter
     AND (
         (?2 = 0 AND ?3 = 0)
         OR (?2 = 1 AND c.language = 'English')
         OR (?3 = 1 AND c.language = 'Spanish')
     )
+
+    -- Color Filter --------------------------------------------------------
     AND (
-        ?4 = 1
-        OR (
-            ?5 != 'tight'
+        -- loose + colourless  ->  accept every card (skip colour filter)
+        (?4 = 'loose' AND ?5 = 1)
+
+        OR
+
+        -- normal loose match
+        (
+            ?4 = 'loose'
             AND (
-                (?6 = 1 AND c.colors LIKE 'B%')
+                   (?6 = 1 AND c.colors LIKE '%B%')
                 OR (?7 = 1 AND c.colors LIKE '%G%')
                 OR (?8 = 1 AND c.colors LIKE '%R%')
                 OR (?9 = 1 AND c.colors LIKE '%U%')
-                OR (?10 = 1 AND c.colors LIKE '%W')
+                OR (?10 = 1 AND c.colors LIKE '%W%')
+                OR (?5 = 1 AND c.colors = '')
             )
         )
+
+        -- tight match
         OR (
-            ?5 = 'tight'
-            AND (?11 = '' OR c.colors = ?11)
+            ?4 = 'tight'
+            AND (
+                   (?5 = 1 AND c.colors = '')
+                OR (?11 <> '' AND c.colors = ?11)
+            )
         )
     )
-    AND (?12 = '' OR c.types = ?12)
-    AND (?13 = -1 OR c.mana_value = ?13)
-    AND (?14 = '' OR c.finish = ?14)
+
+    -- Other simple 1-of filters
+    AND (?12   = '' OR c.types      = ?12)
+    AND (?13     = -1 OR c.mana_value = ?13)
+    AND (?14 = '' OR c.finish     = ?14)
     AND (?15 = 0 OR p.price >= ?15)
     AND (?16 = 0 OR p.price <= ?16)
 `
@@ -99,8 +117,8 @@ type CountFilteredCardsParams struct {
 	CardName     interface{} `json:"cardName"`
 	LangEn       interface{} `json:"langEn"`
 	LangES       interface{} `json:"langES"`
-	AnyColor     interface{} `json:"anyColor"`
 	MatchType    interface{} `json:"matchType"`
+	Colorless    interface{} `json:"colorless"`
 	ColorB       interface{} `json:"colorB"`
 	ColorG       interface{} `json:"colorG"`
 	ColorR       interface{} `json:"colorR"`
@@ -119,8 +137,8 @@ func (q *Queries) CountFilteredCards(ctx context.Context, arg CountFilteredCards
 		arg.CardName,
 		arg.LangEn,
 		arg.LangES,
-		arg.AnyColor,
 		arg.MatchType,
+		arg.Colorless,
 		arg.ColorB,
 		arg.ColorG,
 		arg.ColorR,
@@ -380,40 +398,64 @@ SELECT
     c.name_en,
     c.language,
     p.price,
-    c.image_url
+    c.image_url,
+    c.finish,
+    c.rarity,
+    c.mana_value,
+    c.colors,
+    c.types
 FROM cards AS c
 JOIN cards_price AS p
       ON p.card_id = c.id
      AND p.finish  = c.finish
 WHERE
+    -- Name filter
     (?1 = '' OR c.name_en LIKE '%' || ?1 || '%')
+
+    -- Language Filter
     AND (
         (?2 = 0 AND ?3 = 0)
         OR (?2 = 1 AND c.language = 'English')
         OR (?3 = 1 AND c.language = 'Spanish')
     )
+
+    -- Color Filter --------------------------------------------------------
     AND (
-        ?4 = 1
-        OR (
-            ?5 != 'tight'
+        -- loose + colourless  ->  accept every card (skip colour filter)
+        (?4 = 'loose' AND ?5 = 1)
+
+        OR
+
+        -- normal loose match
+        (
+            ?4 = 'loose'
             AND (
-                (?6 = 1 AND c.colors LIKE 'B%')
+                   (?6 = 1 AND c.colors LIKE '%B%')
                 OR (?7 = 1 AND c.colors LIKE '%G%')
                 OR (?8 = 1 AND c.colors LIKE '%R%')
                 OR (?9 = 1 AND c.colors LIKE '%U%')
-                OR (?10 = 1 AND c.colors LIKE '%W')
+                OR (?10 = 1 AND c.colors LIKE '%W%')
+                OR (?5 = 1 AND c.colors = '')
             )
         )
+
+        -- tight match
         OR (
-            ?5 = 'tight'
-            AND (?11 = '' OR c.colors = ?11)
+            ?4 = 'tight'
+            AND (
+                   (?5 = 1 AND c.colors = '')
+                OR (?11 <> '' AND c.colors = ?11)
+            )
         )
     )
-    AND (?12 = '' OR c.types = ?12)
-    AND (?13 = -1 OR c.mana_value = ?13)
-    AND (?14 = '' OR c.finish = ?14)
+
+    -- Other simple 1-of filters
+    AND (?12   = '' OR c.types      = ?12)
+    AND (?13     = -1 OR c.mana_value = ?13)
+    AND (?14 = '' OR c.finish     = ?14)
     AND (?15 = 0 OR p.price >= ?15)
     AND (?16 = 0 OR p.price <= ?16)
+
 LIMIT ?18
 OFFSET ?17
 `
@@ -422,8 +464,8 @@ type GetFilteredCardsParams struct {
 	CardName     interface{} `json:"cardName"`
 	LangEn       interface{} `json:"langEn"`
 	LangES       interface{} `json:"langES"`
-	AnyColor     interface{} `json:"anyColor"`
 	MatchType    interface{} `json:"matchType"`
+	Colorless    interface{} `json:"colorless"`
 	ColorB       interface{} `json:"colorB"`
 	ColorG       interface{} `json:"colorG"`
 	ColorR       interface{} `json:"colorR"`
@@ -440,11 +482,16 @@ type GetFilteredCardsParams struct {
 }
 
 type GetFilteredCardsRow struct {
-	ID       string  `json:"id"`
-	NameEn   string  `json:"name_en"`
-	Language string  `json:"language"`
-	Price    float64 `json:"price"`
-	ImageUrl string  `json:"image_url"`
+	ID        string  `json:"id"`
+	NameEn    string  `json:"name_en"`
+	Language  string  `json:"language"`
+	Price     float64 `json:"price"`
+	ImageUrl  string  `json:"image_url"`
+	Finish    string  `json:"finish"`
+	Rarity    string  `json:"rarity"`
+	ManaValue int64   `json:"mana_value"`
+	Colors    string  `json:"colors"`
+	Types     string  `json:"types"`
 }
 
 func (q *Queries) GetFilteredCards(ctx context.Context, arg GetFilteredCardsParams) ([]GetFilteredCardsRow, error) {
@@ -452,8 +499,8 @@ func (q *Queries) GetFilteredCards(ctx context.Context, arg GetFilteredCardsPara
 		arg.CardName,
 		arg.LangEn,
 		arg.LangES,
-		arg.AnyColor,
 		arg.MatchType,
+		arg.Colorless,
 		arg.ColorB,
 		arg.ColorG,
 		arg.ColorR,
@@ -481,6 +528,11 @@ func (q *Queries) GetFilteredCards(ctx context.Context, arg GetFilteredCardsPara
 			&i.Language,
 			&i.Price,
 			&i.ImageUrl,
+			&i.Finish,
+			&i.Rarity,
+			&i.ManaValue,
+			&i.Colors,
+			&i.Types,
 		); err != nil {
 			return nil, err
 		}
@@ -550,6 +602,37 @@ func (q *Queries) ListAvailableCards(ctx context.Context, name sql.NullString) (
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listUniqueAvailableCards = `-- name: ListUniqueAvailableCards :many
+SELECT 
+   DISTINCT name_en
+FROM
+    cards
+WHERE name_en LIKE '%' || ?1 || '%'
+`
+
+func (q *Queries) ListUniqueAvailableCards(ctx context.Context, name sql.NullString) ([]string, error) {
+	rows, err := q.query(ctx, q.listUniqueAvailableCardsStmt, listUniqueAvailableCards, name)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var name_en string
+		if err := rows.Scan(&name_en); err != nil {
+			return nil, err
+		}
+		items = append(items, name_en)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err

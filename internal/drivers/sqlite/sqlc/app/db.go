@@ -57,6 +57,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.listAvailableCardsStmt, err = db.PrepareContext(ctx, listAvailableCards); err != nil {
 		return nil, fmt.Errorf("error preparing query ListAvailableCards: %w", err)
 	}
+	if q.listUniqueAvailableCardsStmt, err = db.PrepareContext(ctx, listUniqueAvailableCards); err != nil {
+		return nil, fmt.Errorf("error preparing query ListUniqueAvailableCards: %w", err)
+	}
 	if q.updateCardStockStmt, err = db.PrepareContext(ctx, updateCardStock); err != nil {
 		return nil, fmt.Errorf("error preparing query UpdateCardStock: %w", err)
 	}
@@ -120,6 +123,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing listAvailableCardsStmt: %w", cerr)
 		}
 	}
+	if q.listUniqueAvailableCardsStmt != nil {
+		if cerr := q.listUniqueAvailableCardsStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing listUniqueAvailableCardsStmt: %w", cerr)
+		}
+	}
 	if q.updateCardStockStmt != nil {
 		if cerr := q.updateCardStockStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing updateCardStockStmt: %w", cerr)
@@ -162,37 +170,39 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 }
 
 type Queries struct {
-	db                       DBTX
-	tx                       *sql.Tx
-	cardExistsStmt           *sql.Stmt
-	countCardsWithPriceStmt  *sql.Stmt
-	countFilteredCardsStmt   *sql.Stmt
-	createCardStmt           *sql.Stmt
-	getCardStmt              *sql.Stmt
-	getCardHasVendorByIdStmt *sql.Stmt
-	getCardStockByIdStmt     *sql.Stmt
-	getCardsWithPriceStmt    *sql.Stmt
-	getFilteredCardsStmt     *sql.Stmt
-	getPriceStmt             *sql.Stmt
-	listAvailableCardsStmt   *sql.Stmt
-	updateCardStockStmt      *sql.Stmt
+	db                           DBTX
+	tx                           *sql.Tx
+	cardExistsStmt               *sql.Stmt
+	countCardsWithPriceStmt      *sql.Stmt
+	countFilteredCardsStmt       *sql.Stmt
+	createCardStmt               *sql.Stmt
+	getCardStmt                  *sql.Stmt
+	getCardHasVendorByIdStmt     *sql.Stmt
+	getCardStockByIdStmt         *sql.Stmt
+	getCardsWithPriceStmt        *sql.Stmt
+	getFilteredCardsStmt         *sql.Stmt
+	getPriceStmt                 *sql.Stmt
+	listAvailableCardsStmt       *sql.Stmt
+	listUniqueAvailableCardsStmt *sql.Stmt
+	updateCardStockStmt          *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
-		db:                       tx,
-		tx:                       tx,
-		cardExistsStmt:           q.cardExistsStmt,
-		countCardsWithPriceStmt:  q.countCardsWithPriceStmt,
-		countFilteredCardsStmt:   q.countFilteredCardsStmt,
-		createCardStmt:           q.createCardStmt,
-		getCardStmt:              q.getCardStmt,
-		getCardHasVendorByIdStmt: q.getCardHasVendorByIdStmt,
-		getCardStockByIdStmt:     q.getCardStockByIdStmt,
-		getCardsWithPriceStmt:    q.getCardsWithPriceStmt,
-		getFilteredCardsStmt:     q.getFilteredCardsStmt,
-		getPriceStmt:             q.getPriceStmt,
-		listAvailableCardsStmt:   q.listAvailableCardsStmt,
-		updateCardStockStmt:      q.updateCardStockStmt,
+		db:                           tx,
+		tx:                           tx,
+		cardExistsStmt:               q.cardExistsStmt,
+		countCardsWithPriceStmt:      q.countCardsWithPriceStmt,
+		countFilteredCardsStmt:       q.countFilteredCardsStmt,
+		createCardStmt:               q.createCardStmt,
+		getCardStmt:                  q.getCardStmt,
+		getCardHasVendorByIdStmt:     q.getCardHasVendorByIdStmt,
+		getCardStockByIdStmt:         q.getCardStockByIdStmt,
+		getCardsWithPriceStmt:        q.getCardsWithPriceStmt,
+		getFilteredCardsStmt:         q.getFilteredCardsStmt,
+		getPriceStmt:                 q.getPriceStmt,
+		listAvailableCardsStmt:       q.listAvailableCardsStmt,
+		listUniqueAvailableCardsStmt: q.listUniqueAvailableCardsStmt,
+		updateCardStockStmt:          q.updateCardStockStmt,
 	}
 }

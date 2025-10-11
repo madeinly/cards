@@ -41,3 +41,8 @@ SELECT DISTINCT name
 FROM cards
 WHERE name LIKE '%'||@cardName||'%';
 
+-- name: GetCardId :one
+SELECT scryfallId
+FROM cardidentifiers
+WHERE uuid = ?; -- to avoid collition with gen code var declarations
+

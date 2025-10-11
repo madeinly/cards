@@ -79,7 +79,7 @@ func BulkCreate(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	file, header, err := r.FormFile("card_import")
+	file, _, err := r.FormFile("card_import")
 
 	if err != nil {
 		fmt.Println("cant parse the file")
@@ -89,7 +89,7 @@ func BulkCreate(w http.ResponseWriter, r *http.Request) {
 
 	defer file.Close()
 
-	err = flows.RegisterBulk(ctx, file, header, registerAdition)
+	err = flows.RegisterBulkCards(ctx, file, registerAdition)
 
 	if err != nil {
 		fmt.Println(err.Error())

@@ -31,6 +31,7 @@ func UpdateCardStock(w http.ResponseWriter, r *http.Request) {
 	language := r.PostFormValue("card_language")
 	finish := r.PostFormValue("card_finish")
 	stock := r.PostFormValue("card_stock")
+	hasVendor := r.URL.Query().Has("card_hasVendor")
 
 	bag.Validate(cardId, card.IdRules)
 	bag.Validate(language, card.LanguageRules)
@@ -43,10 +44,11 @@ func UpdateCardStock(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = flows.UpdateCardStock(r.Context(), flows.UpdateCardStockParams{
-		Id:       cardId,
-		Finish:   finish,
-		Language: language,
-		Stock:    stock,
+		Id:        cardId,
+		Finish:    finish,
+		Language:  language,
+		Stock:     stock,
+		HasVendor: hasVendor,
 	})
 
 	if err != nil && errors.Is(err, flows.ErrResourceNotFound) {

@@ -8,10 +8,11 @@ import (
 )
 
 type UpdateCardStockParams struct {
-	Id       string
-	Finish   string
-	Language string
-	Stock    string
+	Id        string
+	Finish    string
+	Language  string
+	Stock     string
+	HasVendor bool
 }
 
 func UpdateCardStock(ctx context.Context, params UpdateCardStockParams) error {

@@ -11,15 +11,6 @@ import (
 	"github.com/madeinly/core"
 )
 
-type RegisterCardParams struct {
-	ScryfallId string `json:"scryfall_id"`
-	Vendor     string `json:"vendor"`
-	Language   string `json:"language"`
-	Finish     string `json:"finish"`
-	Stock      string `json:"stock"`
-	Visibility string `json:"visibility"`
-}
-
 func RegisterCard(ctx context.Context, params RegisterCardParams) error {
 
 	card, _ := GetCardfromId(ctx, params.ScryfallId, params.Finish, params.Language)

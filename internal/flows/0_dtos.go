@@ -22,3 +22,12 @@ type CardBase struct {
 	Price     float64 `json:"card_price"`
 	Stock     int64   `json:"card_stock"`
 }
+
+type RegisterCardParams struct {
+	ScryfallId string `json:"scryfall_id"`
+	Vendor     string `json:"vendor"`
+	Language   string `json:"language"`
+	Finish     string `json:"finish"`
+	Stock      string `json:"stock"`
+	Visibility string `json:"visibility"`
+}

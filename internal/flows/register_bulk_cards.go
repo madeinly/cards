@@ -2,79 +2,36 @@ package flows
 
 import (
 	"context"
-	"encoding/csv"
-	"errors"
 	"fmt"
-	"io"
 	"mime/multipart"
 	"os"
-	"path/filepath"
-	"time"
+	"strconv"
 
+	"github.com/madeinly/cards/internal/features"
 	"github.com/madeinly/core"
 )
 
-func RegisterBulk(ctx context.Context, file multipart.File, header *multipart.FileHeader, additive bool) error {
-	// 1. save the file (your existing code)
+func RegisterBulkCards(ctx context.Context, file multipart.File, addititive bool) error {
 
-	fmt.Println("started bulk")
-	importFolderPath := core.FeaturePath("cards/imports")
-	now := time.Now()
-	fileName := now.Format("2006-01-02_15-04-05") + ".csv"
-	importFilePath := filepath.Join(importFolderPath, fileName)
+	/// ================= Handle the file - Fetch data
 
-	dst, err := os.Create(importFilePath)
+	importFilePath, err := features.HandleImportFile(file)
 	if err != nil {
 		return err
 	}
-	defer dst.Close()
 
-	if _, err := io.Copy(dst, file); err != nil {
-		return err
-	}
-	if err := file.Close(); err != nil {
-		return err
-	}
-	if err := dst.Close(); err != nil {
-		return err
-	}
-
-	// 2. re-open for reading & parse CSV
-	fmt.Println("started reading and parsing")
-
-	f, err := os.Open(importFilePath)
+	importFile, err := os.Open(importFilePath)
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer importFile.Close()
 
-	r := csv.NewReader(f)
-	records, err := r.ReadAll()
+	cardsToImport, err := features.ParseCardsImportFile(ctx, importFile, true)
 	if err != nil {
-		return fmt.Errorf("csv read: %w", err)
-	}
-	if len(records) == 0 {
-		return errors.New("empty csv")
+		return err
 	}
 
-	// header row: skip index 0
-	var params []RegisterCardParams
-	for i, row := range records {
-		if i == 0 { // header
-			continue
-		}
-		if len(row) < 6 {
-			return fmt.Errorf("row %d: not enough columns", i+1)
-		}
-		params = append(params, RegisterCardParams{
-			ScryfallId: row[0],
-			Language:   row[1],
-			Stock:      row[2],
-			Vendor:     row[3],
-			Finish:     row[4],
-			Visibility: row[5],
-		})
-	}
+	/// =================== Process the data - DB Conn
 
 	db := core.DB()
 
@@ -87,13 +44,53 @@ func RegisterBulk(ctx context.Context, file multipart.File, header *multipart.Fi
 	defer tx.Rollback()
 
 	var errs []error
-	for _, p := range params {
-		if err := RegisterCardTx(ctx, tx, p); err != nil {
-			errs = append(errs, fmt.Errorf("row %s: %w", p.ScryfallId, err))
+
+	for _, item := range cardsToImport {
+
+		cardId := features.GetCardId(ctx, item.ScryfallId)
+
+		cardExist, _ := features.CheckcardExist(ctx, features.CheckcardExistParams{
+			CardId:   cardId,
+			Finish:   item.Finish,
+			Language: item.Language,
+		})
+
+		if !cardExist {
+
+			err := features.CreateCard(ctx, tx, features.CreateCardParams{})
+
+			if err != nil {
+				errs = append(errs, fmt.Errorf("row %s: %w", item.ScryfallId, err))
+			}
 		}
+
+		if cardExist {
+
+			hasVendor := item.Vendor != ""
+
+			stockQty := features.GetCardStock(ctx, cardId, item.Language, item.Finish)
+
+			importQty, _ := strconv.ParseInt(item.Stock, 10, 64)
+
+			err := features.UpdateCardStock(ctx, features.UpdateCardStockParams{
+				Id:        cardId,
+				Finish:    item.Finish,
+				Language:  item.Language,
+				Stock:     stockQty + importQty,
+				HasVendor: hasVendor,
+			})
+
+			if err != nil {
+				errs = append(errs, fmt.Errorf("row %s: %w", item.ScryfallId, err))
+			}
+
+		}
+
 	}
+
 	if len(errs) > 0 {
 		return fmt.Errorf("bulk insert finished with %d error(s): %v", len(errs), errs)
 	}
+
 	return tx.Commit()
 }

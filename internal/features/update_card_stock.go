@@ -8,10 +8,11 @@ import (
 )
 
 type UpdateCardStockParams struct {
-	Id       string
-	Finish   string
-	Language string
-	Stock    int64
+	Id        string
+	Finish    string
+	Language  string
+	Stock     int64
+	HasVendor bool
 }
 
 func UpdateCardStock(ctx context.Context, params UpdateCardStockParams) error {
@@ -21,10 +22,11 @@ func UpdateCardStock(ctx context.Context, params UpdateCardStockParams) error {
 	queryApp := appDB.New(db)
 
 	err := queryApp.UpdateCardStock(ctx, appDB.UpdateCardStockParams{
-		ID:       params.Id,
-		Language: params.Language,
-		Finish:   params.Finish,
-		Stock:    params.Stock,
+		ID:        params.Id,
+		Language:  params.Language,
+		Finish:    params.Finish,
+		Stock:     params.Stock,
+		HasVendor: params.HasVendor,
 	})
 
 	if err != nil {

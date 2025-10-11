@@ -10,11 +10,15 @@ import (
 )
 
 // CardId is the uuid from mtgJson
-func GetEsName(ctx context.Context, cardId string) string {
+func GetEsName(ctx context.Context, tx *sql.Tx, cardId string) string {
 
-	cardsDB := GetCardsDB()
+	var dbConn mtgDB.DBTX = GetCardsDB()
 
-	queryCards := mtgDB.New(cardsDB)
+	if tx != nil {
+		dbConn = tx
+	}
+
+	queryCards := mtgDB.New(dbConn)
 
 	esName, err := queryCards.GetCardNameES(ctx, sql.NullString{String: cardId, Valid: true})
 

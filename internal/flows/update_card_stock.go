@@ -17,7 +17,7 @@ type UpdateCardStockParams struct {
 
 func UpdateCardStock(ctx context.Context, params UpdateCardStockParams) error {
 
-	cardExist, err := features.CheckcardExist(ctx, features.CheckcardExistParams{
+	cardExist, err := features.CheckCardExist(ctx, nil, features.CheckcardExistParams{
 		CardId:   params.Id,
 		Finish:   params.Finish,
 		Language: params.Language,

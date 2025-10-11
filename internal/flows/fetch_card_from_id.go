@@ -19,7 +19,7 @@ func GetCardfromId(ctx context.Context, scryfallId string, finish string, langua
 		return CardBase{}, ErrResourceNotFound
 	}
 
-	nameEs := features.GetEsName(ctx, rawCard.Uuid)
+	nameEs := features.GetEsName(ctx, nil, rawCard.Uuid)
 
 	setName := features.GetSetName(ctx, rawCard.Setcode)
 
@@ -29,7 +29,7 @@ func GetCardfromId(ctx context.Context, scryfallId string, finish string, langua
 		return CardBase{}, ErrResourceNotFound
 	}
 
-	stock := features.GetCardStock(ctx, rawCard.Uuid, language, finish)
+	stock := features.GetCardStock(ctx, nil, rawCard.Uuid, language, finish)
 
 	return CardBase{
 		ID:        rawCard.Uuid,

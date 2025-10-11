@@ -10,11 +10,14 @@ import (
 )
 
 // cardId is the uuid from mtgJson
-func GetCardStock(ctx context.Context, cardId string, language string, finish string) int64 {
+func GetCardStock(ctx context.Context, tx *sql.Tx, cardId string, language string, finish string) int64 {
+	var conn appDB.DBTX = core.DB()
 
-	db := core.DB()
+	if tx == nil {
+		conn = tx
+	}
 
-	queryApp := appDB.New(db)
+	queryApp := appDB.New(conn)
 
 	stock, err := queryApp.GetCardStockById(ctx, appDB.GetCardStockByIdParams{ID: cardId, Language: language, Finish: finish})
 

@@ -2,6 +2,7 @@ package features
 
 import (
 	"context"
+	"database/sql"
 
 	appDB "github.com/madeinly/cards/internal/drivers/sqlite/sqlc/app"
 	"github.com/madeinly/core"
@@ -13,15 +14,21 @@ type CheckcardExistParams struct {
 	Language string
 }
 
-func CheckcardExist(ctx context.Context, params CheckcardExistParams) (bool, error) {
-	db := core.DB()
-	queryApp := appDB.New(db)
+func CheckCardExist(ctx context.Context, tx *sql.Tx, params CheckcardExistParams) (bool, error) {
+	var conn appDB.DBTX = core.DB()
+	if tx != nil {
+		conn = tx
+	}
 
-	exists, err := queryApp.CardExists(ctx, appDB.CardExistsParams{
+	q := appDB.New(conn)
+
+	exists, err := q.CardExists(ctx, appDB.CardExistsParams{
 		ID:       params.CardId,
 		Finish:   params.Finish,
 		Language: params.Language,
 	})
-
-	return exists == 1, err
+	if err != nil {
+		return false, err
+	}
+	return exists == 1, nil
 }

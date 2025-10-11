@@ -61,16 +61,16 @@ func (q *Queries) GetCard(ctx context.Context, scryfallid string) (GetCardRow, e
 }
 
 const getCardId = `-- name: GetCardId :one
-SELECT scryfallId
-FROM cardidentifiers
-WHERE uuid = ?
+SELECT uuid
+FROM cardIdentifiers
+WHERE scryfallId = ?
 `
 
-func (q *Queries) GetCardId(ctx context.Context, uuid sql.NullString) (string, error) {
-	row := q.queryRow(ctx, q.getCardIdStmt, getCardId, uuid)
-	var scryfallid string
-	err := row.Scan(&scryfallid)
-	return scryfallid, err
+func (q *Queries) GetCardId(ctx context.Context, scryfallid string) (sql.NullString, error) {
+	row := q.queryRow(ctx, q.getCardIdStmt, getCardId, scryfallid)
+	var uuid sql.NullString
+	err := row.Scan(&uuid)
+	return uuid, err
 }
 
 const getCardNameES = `-- name: GetCardNameES :one

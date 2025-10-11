@@ -16,6 +16,7 @@ type CheckcardExistParams struct {
 
 func CheckCardExist(ctx context.Context, tx *sql.Tx, params CheckcardExistParams) (bool, error) {
 	var conn appDB.DBTX = core.DB()
+
 	if tx != nil {
 		conn = tx
 	}
@@ -27,8 +28,10 @@ func CheckCardExist(ctx context.Context, tx *sql.Tx, params CheckcardExistParams
 		Finish:   params.Finish,
 		Language: params.Language,
 	})
+
 	if err != nil {
 		return false, err
 	}
+
 	return exists == 1, nil
 }

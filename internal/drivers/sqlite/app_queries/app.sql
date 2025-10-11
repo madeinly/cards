@@ -48,7 +48,8 @@ WHERE id = @id;
 
 -- name: UpdateCardStock :exec
 UPDATE cards
-SET stock = @stock AND has_vendor = @hasVendor
+SET stock = @stock,
+    has_vendor = @hasVendor
 WHERE id = @id AND language = @language AND finish = @finish;
 
 

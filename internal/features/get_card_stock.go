@@ -13,7 +13,7 @@ import (
 func GetCardStock(ctx context.Context, tx *sql.Tx, cardId string, language string, finish string) int64 {
 	var conn appDB.DBTX = core.DB()
 
-	if tx == nil {
+	if tx != nil {
 		conn = tx
 	}
 
@@ -22,11 +22,11 @@ func GetCardStock(ctx context.Context, tx *sql.Tx, cardId string, language strin
 	stock, err := queryApp.GetCardStockById(ctx, appDB.GetCardStockByIdParams{ID: cardId, Language: language, Finish: finish})
 
 	if err != nil && errors.Is(err, sql.ErrNoRows) {
-		return 0 // this should return 0 or -1 or maybe error ???
+		return 0
 	}
 
 	if err != nil {
-		core.Fatal(err, "could not retrieve the card stock")
+		core.Fatal(err, err.Error())
 	}
 
 	return stock

@@ -2,7 +2,7 @@ package features
 
 import (
 	"context"
-	"database/sql"
+	"fmt"
 
 	mtgDB "github.com/madeinly/cards/internal/drivers/sqlite/sqlc/cards"
 )
@@ -13,7 +13,11 @@ func GetCardId(ctx context.Context, scryfallId string) string {
 
 	queryCards := mtgDB.New(cardsDB)
 
-	cardId, _ := queryCards.GetCardId(ctx, sql.NullString{Valid: true, String: scryfallId})
+	cardId, err := queryCards.GetCardId(ctx, scryfallId)
 
-	return cardId
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	return cardId.String
 }

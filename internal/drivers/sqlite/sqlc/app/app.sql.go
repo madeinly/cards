@@ -645,7 +645,8 @@ func (q *Queries) ListUniqueAvailableCards(ctx context.Context, name sql.NullStr
 
 const updateCardStock = `-- name: UpdateCardStock :exec
 UPDATE cards
-SET stock = ?1 AND has_vendor = ?2
+SET stock = ?1,
+    has_vendor = ?2
 WHERE id = ?3 AND language = ?4 AND finish = ?5
 `
 

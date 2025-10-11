@@ -2,6 +2,7 @@ package flows
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/madeinly/cards/internal/features"
@@ -23,6 +24,8 @@ func UpdateCardStock(ctx context.Context, params UpdateCardStockParams) error {
 		Language: params.Language,
 	})
 
+	fmt.Println()
+
 	if err != nil {
 		return err
 	}
@@ -33,7 +36,7 @@ func UpdateCardStock(ctx context.Context, params UpdateCardStockParams) error {
 
 	stock, _ := strconv.ParseInt(params.Stock, 10, 64)
 
-	err = features.UpdateCardStock(ctx, features.UpdateCardStockParams{
+	err = features.UpdateCardStock(ctx, nil, features.UpdateCardStockParams{
 		Id:       params.Id,
 		Finish:   params.Finish,
 		Language: params.Language,

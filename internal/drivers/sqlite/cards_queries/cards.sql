@@ -42,7 +42,7 @@ FROM cards
 WHERE name LIKE '%'||@cardName||'%';
 
 -- name: GetCardId :one
-SELECT scryfallId
-FROM cardidentifiers
-WHERE uuid = ?; -- to avoid collition with gen code var declarations
+SELECT uuid
+FROM cardIdentifiers
+WHERE scryfallId = ?; -- to avoid collition with gen code var declarations
 

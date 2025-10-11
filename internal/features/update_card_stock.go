@@ -2,16 +2,29 @@ package features
 
 import (
 	"context"
+	"database/sql"
 
 	appDB "github.com/madeinly/cards/internal/drivers/sqlite/sqlc/app"
 	"github.com/madeinly/core"
 )
 
-func UpdateCardStock(ctx context.Context, params UpdateCardStockParams) error {
+type UpdateCardStockParams struct {
+	Id        string
+	Finish    string
+	Language  string
+	Stock     int64
+	HasVendor bool
+}
 
-	db := core.DB()
+func UpdateCardStock(ctx context.Context, tx *sql.Tx, params UpdateCardStockParams) error {
 
-	queryApp := appDB.New(db)
+	var dbConn appDB.DBTX = core.DB()
+
+	if tx != nil {
+		dbConn = tx
+	}
+
+	queryApp := appDB.New(dbConn)
 
 	err := queryApp.UpdateCardStock(ctx, appDB.UpdateCardStockParams{
 		ID:        params.Id,

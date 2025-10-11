@@ -68,7 +68,7 @@ func RegisterBulkCards(ctx context.Context, file multipart.File, addititive bool
 
 			}
 
-			nameES := features.GetEsName(ctx, tx, rawCard.Uuid)
+			nameES := features.GetEsName(ctx, nil, rawCard.Uuid)
 
 			visibility, _ := strconv.ParseInt(item.Visibility, 10, 64)
 
@@ -106,15 +106,21 @@ func RegisterBulkCards(ctx context.Context, file multipart.File, addititive bool
 			}
 		}
 
-		if cardExist {
+		if cardExist && addititive {
 
 			hasVendor := item.Vendor != ""
 
+			fmt.Println(cardId, item.Language, item.Finish)
+
 			stockQty := features.GetCardStock(ctx, tx, cardId, item.Language, item.Finish)
+
+			fmt.Println(stockQty)
 
 			importQty, _ := strconv.ParseInt(item.Stock, 10, 64)
 
-			err := features.UpdateCardStockWithTx(ctx, tx, features.UpdateCardStockParams{
+			fmt.Println(importQty)
+
+			err := features.UpdateCardStock(ctx, tx, features.UpdateCardStockParams{
 				Id:        cardId,
 				Finish:    item.Finish,
 				Language:  item.Language,
